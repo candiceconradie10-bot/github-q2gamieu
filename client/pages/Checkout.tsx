@@ -90,11 +90,7 @@ export default function Checkout() {
     e.preventDefault();
 
     if (!termsAccepted) {
-      toast({
-        title: "Terms Required",
-        description: "Please accept the terms and conditions to continue.",
-        variant: "destructive",
-      });
+      toast.error("Please accept the terms and conditions to continue.");
       return;
     }
 
@@ -111,7 +107,7 @@ export default function Checkout() {
         user_id: user.id,
         products: state.items.map(item => ({
           product_id: item.product_id,
-          title: item.product.title,
+          name: item.product.name,
           price: item.product.price,
           quantity: item.quantity
         })),
@@ -575,14 +571,14 @@ export default function Checkout() {
                       >
                         <div className="flex-1 pr-2">
                           <div className="font-medium line-clamp-1">
-                            {item.name}
+                            {item.product.name}
                           </div>
                           <div className="text-muted-foreground">
-                            Qty: {item.quantity} × R{item.price.toFixed(2)}
+                            Qty: {item.quantity} × R{item.product.price.toFixed(2)}
                           </div>
                         </div>
                         <div className="font-bold text-brand-red">
-                          R{(item.price * item.quantity).toFixed(2)}
+                          R{(item.product.price * item.quantity).toFixed(2)}
                         </div>
                       </div>
                     ))}
