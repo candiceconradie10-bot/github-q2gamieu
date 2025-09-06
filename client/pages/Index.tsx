@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { SEO, generateFAQSchema } from "@/components/SEO";
 import { categories } from "@/data/products";
+import { useProducts } from "@/hooks/useProducts";
+import { ProductGrid } from "@/components/ProductGrid";
 import {
   ArrowRight,
   Star,

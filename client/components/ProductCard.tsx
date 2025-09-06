@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { OptimizedImage } from "./OptimizedImage";
-import { useCart, Product } from "@/contexts/CartContext";
+import { useCart } from "@/contexts/CartContext";
+import { Product } from "@/lib/supabaseClient";
 import { Star, Heart, ShoppingCart, Eye, Zap, TrendingUp } from "lucide-react";
 
 interface ProductCardProps {
@@ -77,8 +78,8 @@ export function ProductCard({
 
           {/* Product Image */}
           <img
-            src={product.image}
-            alt={product.name}
+            src={product.image_url || '/api/placeholder/300/300'}
+            alt={product.title}
             className={`w-full h-full object-cover transition-all duration-700 group-hover:scale-110 ${
               imageLoaded ? "opacity-100" : "opacity-0"
             }`}
@@ -149,37 +150,22 @@ export function ProductCard({
 
         {/* Product Info */}
         <div className="p-6 space-y-4">
-          {/* Rating */}
-          {product.rating && (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`h-4 w-4 ${
-                        i < Math.floor(product.rating!)
-                          ? "text-yellow-400 fill-current"
-                          : "text-gray-600"
-                      } transition-colors duration-200`}
-                    />
-                  ))}
-                </div>
-                <span className="text-sm text-white/70 font-medium">
-                  {product.rating?.toFixed(1)}
-                </span>
-              </div>
-              {product.reviews && (
-                <span className="text-xs text-white/50">
-                  ({product.reviews} reviews)
-                </span>
-              )}
+          {/* Stock indicator */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Badge className={`text-xs font-medium ${
+                product.stock > 10 ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                product.stock > 0 ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                'bg-red-500/20 text-red-400 border-red-500/30'
+              }`}>
+                {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+              </Badge>
             </div>
-          )}
+          </div>
 
           {/* Product Name */}
           <h3 className="font-bold text-white text-lg leading-tight line-clamp-2 group-hover:text-brand-red transition-colors duration-300">
-            {product.name}
+            {product.title}
           </h3>
 
           {/* Description */}

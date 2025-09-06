@@ -1,181 +1,68 @@
-import { Product } from "@/contexts/CartContext";
+import { Product } from "@/lib/supabaseClient";
 
-export const products: Product[] = [
-  {
-    id: 1,
-    name: "Premium Corporate Polo Shirt",
-    price: 249,
-    image: "/api/placeholder/300/300",
-    category: "corporate-clothing",
-    description:
-      "High-quality cotton polo shirt perfect for corporate branding. Available in multiple colors with embroidery options.",
-    rating: 4.8,
-    reviews: 124,
-  },
-  {
-    id: 2,
-    name: "Executive Gift Set",
-    price: 599,
-    image: "/api/placeholder/300/300",
-    category: "corporate-gifts",
-    description:
-      "Luxury executive gift set including pen, notebook, and business card holder in premium leather.",
-    rating: 4.9,
-    reviews: 89,
-  },
-  {
-    id: 3,
-    name: "Safety Workwear Bundle",
-    price: 1299,
-    image: "/api/placeholder/300/300",
-    category: "workwear",
-    description:
-      "Complete safety workwear package including high-visibility vest, hard hat, and safety boots.",
-    rating: 4.7,
-    reviews: 156,
-  },
-  {
-    id: 4,
-    name: "Custom Branded Cap",
-    price: 89,
-    image: "/api/placeholder/300/300",
-    category: "headwear-and-accessories",
-    description:
-      "Adjustable cap with custom embroidery. Perfect for promotional events and corporate branding.",
-    rating: 4.6,
-    reviews: 203,
-  },
-  {
-    id: 5,
-    name: "Corporate Hoodie",
-    price: 399,
-    image: "/api/placeholder/300/300",
-    category: "corporate-clothing",
-    description:
-      "Comfortable cotton hoodie with modern fit. Ideal for casual corporate wear and team building events.",
-    rating: 4.5,
-    reviews: 167,
-  },
-  {
-    id: 6,
-    name: "Promotional Tote Bag",
-    price: 45,
-    image: "/api/placeholder/300/300",
-    category: "corporate-gifts",
-    description:
-      "Eco-friendly canvas tote bag perfect for promotional campaigns and corporate events.",
-    rating: 4.4,
-    reviews: 289,
-  },
-  {
-    id: 7,
-    name: "Steel Water Bottle",
-    price: 179,
-    image: "/api/placeholder/300/300",
-    category: "corporate-gifts",
-    description:
-      "Insulated stainless steel water bottle with custom laser engraving options.",
-    rating: 4.7,
-    reviews: 198,
-  },
-  {
-    id: 8,
-    name: "Business Card Holder",
-    price: 125,
-    image: "/api/placeholder/300/300",
-    category: "corporate-gifts",
-    description:
-      "Elegant metal business card holder with custom engraving. Professional and durable.",
-    rating: 4.6,
-    reviews: 145,
-  },
-  {
-    id: 9,
-    name: "Corporate T-Shirt",
-    price: 159,
-    image: "/api/placeholder/300/300",
-    category: "corporate-clothing",
-    description:
-      "Premium cotton t-shirt available in various colors. Perfect for company uniforms and events.",
-    rating: 4.5,
-    reviews: 234,
-  },
-  {
-    id: 10,
-    name: "Leather Portfolio",
-    price: 749,
-    image: "/api/placeholder/300/300",
-    category: "corporate-gifts",
-    description:
-      "Premium leather portfolio with notepad, pen holder, and business card slots.",
-    rating: 4.8,
-    reviews: 76,
-  },
-  {
-    id: 11,
-    name: "Safety Helmet",
-    price: 299,
-    image: "/api/placeholder/300/300",
-    category: "workwear",
-    description:
-      "ANSI certified safety helmet with adjustable suspension and custom logo options.",
-    rating: 4.9,
-    reviews: 134,
-  },
-  {
-    id: 12,
-    name: "Fleece Jacket",
-    price: 459,
-    image: "/api/placeholder/300/300",
-    category: "corporate-clothing",
-    description:
-      "Warm fleece jacket perfect for outdoor corporate events and team activities.",
-    rating: 4.6,
-    reviews: 188,
-  },
-];
-
+// Categories configuration for the site
 export const categories = [
   {
     title: "Corporate Gifts",
     description: "Premium branded items for your business",
-    image: "/api/placeholder/400/300",
-    href: "/gifting",
-    count: products.filter((p) => p.category === "corporate-gifts").length,
+    image: "https://images.pexels.com/photos/6373478/pexels-photo-6373478.jpeg?auto=compress&cs=tinysrgb&w=800",
+    href: "/corporate-gifts",
+    count: 0, // Will be updated from database
   },
   {
-    title: "Clothing",
+    title: "Corporate Clothing",
     description: "Professional apparel for your team",
-    image: "/api/placeholder/400/300",
+    image: "https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=800",
     href: "/corporate-clothing",
-    count: products.filter((p) => p.category === "corporate-clothing").length,
+    count: 0,
   },
   {
     title: "Workwear",
     description: "Durable clothing for every industry",
-    image: "/api/placeholder/400/300",
+    image: "https://images.pexels.com/photos/8486911/pexels-photo-8486911.jpeg?auto=compress&cs=tinysrgb&w=800",
     href: "/workwear",
-    count: products.filter((p) => p.category === "workwear").length,
+    count: 0,
   },
   {
     title: "Headwear & Accessories",
     description: "Caps, hats, and promotional accessories",
-    image: "/api/placeholder/400/300",
-    href: "/headwear",
-    count: products.filter((p) => p.category === "headwear-and-accessories")
-      .length,
+    image: "https://images.pexels.com/photos/1124465/pexels-photo-1124465.jpeg?auto=compress&cs=tinysrgb&w=800",
+    href: "/headwear-and-accessories",
+    count: 0,
   },
 ];
 
-// Helper functions
-export const getProductsByCategory = (category: string): Product[] => {
-  return products.filter((product) => product.category === category);
+// Helper function to get category display name
+export const getCategoryDisplayName = (category: string): string => {
+  const categoryMap: { [key: string]: string } = {
+    'corporate-gifts': 'Corporate Gifts',
+    'corporate-clothing': 'Corporate Clothing',
+    'workwear': 'Workwear',
+    'headwear-and-accessories': 'Headwear & Accessories',
+  };
+  return categoryMap[category] || category;
 };
 
-export const getProductById = (id: number): Product | undefined => {
-  return products.find((product) => product.id === id);
+// Helper function to get products by category (using Supabase)
+export const getProductsByCategory = async (category: string): Promise<Product[]> => {
+  const { products } = await import('@/lib/supabaseClient');
+  return await products.getByCategory(category);
 };
 
-export const getFeaturedProducts = (limit: number = 4): Product[] => {
-  return products.slice(0, limit);
+// Helper function to get all products (using Supabase)
+export const getAllProducts = async (): Promise<Product[]> => {
+  const { products } = await import('@/lib/supabaseClient');
+  return await products.getAll();
+};
+
+// Helper function to get product by ID (using Supabase)
+export const getProductById = async (id: string): Promise<Product | null> => {
+  const { products } = await import('@/lib/supabaseClient');
+  return await products.getById(id);
+};
+
+// Helper function to get featured products (using Supabase)
+export const getFeaturedProducts = async (limit: number = 4): Promise<Product[]> => {
+  const allProducts = await getAllProducts();
+  return allProducts.slice(0, limit);
 };

@@ -1,58 +1,52 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCart } from "@/contexts/CartContext";
-import { getProductById } from "@/data/products";
+import { useProduct } from "@/hooks/useProducts";
 import {
   ArrowLeft,
   ShoppingCart,
   Star,
   ShieldCheck,
   Truck,
+  Plus,
+  Minus,
+  Heart,
+  Share2,
 } from "lucide-react";
 
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [product, setProduct] = useState<any | null>(null);
+  const { product, loading, error } = useProduct(id || "");
+  const [quantity, setQuantity] = useState(1);
+  const [isLiked, setIsLiked] = useState(false);
 
-  const numericId = useMemo(() => {
-    const n = Number(id);
-    return Number.isFinite(n) ? n : null;
-  }, [id]);
+  const handleAddToCart = async () => {
+    if (product) {
+      await addToCart(product, quantity);
+    }
+  };
 
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        if (numericId !== null) {
-          const local = getProductById(numericId);
-          if (local) {
-            setProduct(local);
-            return;
-          }
-        }
-        setError("Product not found");
-      } catch (e: any) {
-        setError(e?.message || "Failed to load product");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    load();
-  }, [numericId]);
+  const adjustQuantity = (delta: number) => {
+    const newQuantity = Math.max(1, Math.min(product?.stock || 1, quantity + delta));
+    setQuantity(newQuantity);
+  };
 
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-16">
-        <div className="h-64 rounded-2xl bg-white/5 animate-pulse" />
+        <div className="grid lg:grid-cols-2 gap-8">
+          <div className="h-96 rounded-2xl bg-white/5 animate-pulse" />
+          <div className="space-y-4">
+            <div className="h-8 bg-white/5 rounded animate-pulse" />
+            <div className="h-4 bg-white/5 rounded animate-pulse" />
+            <div className="h-4 bg-white/5 rounded animate-pulse w-3/4" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -73,96 +67,155 @@ export default function ProductDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
-      <div className="container mx-auto px-4 py-6">
-        <div className="mb-6">
-          <Link to="/">
-            <Button
-              variant="outline"
-              className="border-white/20 text-white hover:bg-white/10"
+    <div className="min-h-screen bg-background">
+      {/* Breadcrumb */}
+      <div className="bg-black border-b border-gray-800">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <Link to="/" className="hover:text-brand-red transition-colors">
+              Home
+            </Link>
+            <span>/</span>
+            <Link 
+              to={`/${product.category}`} 
+              className="hover:text-brand-red transition-colors"
             >
-              <ArrowLeft className="h-4 w-4 mr-2" /> Back to Home
-            </Button>
-          </Link>
+              {product.category}
+            </Link>
+            <span>/</span>
+            <span className="text-foreground font-medium">
+              {product.title}
+            </span>
+          </div>
         </div>
+      </div>
 
-        <div className="grid lg:grid-cols-2 gap-8 items-start">
-          <Card className="bg-black/50 backdrop-blur-xl border border-white/20 overflow-hidden">
-            <CardContent className="p-0">
-              <div className="relative h-[340px] sm:h-[420px] md:h-[520px]">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-black text-white">
-                {product.name}
-              </h1>
-              {product.rating && (
-                <div className="mt-2 flex items-center space-x-2 text-white/80">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`h-4 w-4 ${i < Math.floor(product.rating) ? "text-yellow-400 fill-current" : "text-gray-600"}`}
-                    />
-                  ))}
-                  <span className="text-sm">{product.rating.toFixed(1)}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="text-2xl font-bold text-white">
-              R{Number(product.price).toFixed(2)}
-            </div>
-
-            {product.description && (
-              <p className="text-white/70 leading-relaxed">
-                {product.description}
-              </p>
-            )}
-
-            <div className="flex items-center gap-2">
-              <Badge className="bg-green-500/20 text-green-400 border border-green-500/30">
-                In Stock
-              </Badge>
-              <Badge className="bg-white/10 text-white border border-white/20">
-                Free Shipping
-              </Badge>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3">
+      {/* Product Detail */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid lg:grid-cols-2 gap-12">
+          {/* Product Image */}
+          <div className="space-y-4">
+            <div className="relative aspect-square rounded-3xl overflow-hidden bg-white/5">
+              <img
+                src={product.image_url || '/api/placeholder/600/600'}
+                alt={product.title}
+                className="w-full h-full object-cover"
+              />
               <Button
-                className="bg-gradient-to-r from-brand-red to-red-600 hover:from-red-600 hover:to-brand-red text-white font-bold px-6 py-4 rounded-xl"
-                onClick={() => addToCart(product)}
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsLiked(!isLiked)}
+                className={`absolute top-4 right-4 rounded-full p-3 backdrop-blur-md transition-all duration-300 ${
+                  isLiked
+                    ? "bg-red-500/80 text-white"
+                    : "bg-white/20 text-white hover:bg-white/30"
+                }`}
               >
-                <ShoppingCart className="h-5 w-5 mr-2" /> Add to Cart
+                <Heart className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`} />
               </Button>
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
-              <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                <Truck className="h-5 w-5 text-white mb-2" />
-                <div className="text-white font-medium">Fast Delivery</div>
-                <div className="text-white/60 text-sm">2-5 working days</div>
+          {/* Product Info */}
+          <div className="space-y-6">
+            <div>
+              <Badge className="mb-4 bg-gradient-to-r from-brand-red/20 to-red-600/20 text-brand-red border border-brand-red/30">
+                {product.category}
+              </Badge>
+              <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                {product.title}
+              </h1>
+              <div className="flex items-center space-x-4 mb-6">
+                <span className="text-3xl font-bold text-white">
+                  R{product.price.toFixed(2)}
+                </span>
+                <Badge className={`${
+                  product.stock > 10 ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                  product.stock > 0 ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                  'bg-red-500/20 text-red-400 border-red-500/30'
+                }`}>
+                  {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+                </Badge>
               </div>
-              <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                <ShieldCheck className="h-5 w-5 text-white mb-2" />
-                <div className="text-white font-medium">Quality Guaranteed</div>
-                <div className="text-white/60 text-sm">Premium materials</div>
-              </div>
-              <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                <Star className="h-5 w-5 text-white mb-2" />
-                <div className="text-white font-medium">
-                  Trusted by 1000+ clients
+            </div>
+
+            <p className="text-gray-300 leading-relaxed">
+              {product.description}
+            </p>
+
+            {/* Quantity Selector */}
+            <div className="space-y-4">
+              <div className="flex items-center space-x-4">
+                <span className="text-white font-medium">Quantity:</span>
+                <div className="flex items-center bg-white/10 rounded-lg border border-white/20">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => adjustQuantity(-1)}
+                    disabled={quantity <= 1}
+                    className="px-3 py-2 text-white hover:bg-white/10"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="px-4 py-2 text-white font-medium min-w-[3rem] text-center">
+                    {quantity}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => adjustQuantity(1)}
+                    disabled={quantity >= (product.stock || 0)}
+                    className="px-3 py-2 text-white hover:bg-white/10"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
                 </div>
-                <div className="text-white/60 text-sm">Excellent reviews</div>
               </div>
+
+              {/* Add to Cart Button */}
+              <div className="flex space-x-4">
+                <Button
+                  onClick={handleAddToCart}
+                  disabled={product.stock <= 0}
+                  className="flex-1 bg-gradient-to-r from-brand-red to-red-600 hover:from-red-600 hover:to-brand-red text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300"
+                >
+                  <ShoppingCart className="h-5 w-5 mr-2" />
+                  {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-white/20 text-white hover:bg-white/10"
+                >
+                  <Share2 className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Features */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card className="bg-white/5 border-white/10">
+                <CardContent className="p-4 flex items-center space-x-3">
+                  <div className="p-2 rounded-lg bg-green-500/20">
+                    <ShieldCheck className="h-5 w-5 text-green-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-white">Quality Guaranteed</p>
+                    <p className="text-sm text-gray-400">100% satisfaction</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/5 border-white/10">
+                <CardContent className="p-4 flex items-center space-x-3">
+                  <div className="p-2 rounded-lg bg-blue-500/20">
+                    <Truck className="h-5 w-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-white">Fast Delivery</p>
+                    <p className="text-sm text-gray-400">Nationwide shipping</p>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
