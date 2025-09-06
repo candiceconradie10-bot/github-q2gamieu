@@ -5,6 +5,7 @@ import { Badge } from "./ui/badge";
 import { OptimizedImage } from "./OptimizedImage";
 import { useCart } from "@/contexts/CartContext";
 import { Product } from "@/lib/supabaseClient";
+import { WishlistButton } from "@/components/wishlist/WishlistButton";
 import { Star, Heart, ShoppingCart, Eye, Zap, TrendingUp } from "lucide-react";
 
 interface ProductCardProps {
@@ -79,7 +80,7 @@ export function ProductCard({
           {/* Product Image */}
           <img
             src={product.image_url || '/api/placeholder/300/300'}
-            alt={product.title}
+            alt={product.name}
             className={`w-full h-full object-cover transition-all duration-700 group-hover:scale-110 ${
               imageLoaded ? "opacity-100" : "opacity-0"
             }`}
@@ -106,19 +107,13 @@ export function ProductCard({
                 : "opacity-0 translate-y-4"
             }`}
           >
-            {/* Like Button */}
-            <Button
-              variant="ghost"
+            {/* Wishlist Button */}
+            <WishlistButton
+              productId={product.id.toString()}
               size="sm"
-              onClick={handleLike}
-              className={`rounded-full p-3 backdrop-blur-md transition-all duration-300 hover:scale-110 ${
-                isLiked
-                  ? "bg-red-500/80 text-white"
-                  : "bg-white/20 text-white hover:bg-white/30"
-              }`}
-            >
-              <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
-            </Button>
+              variant="ghost"
+              className="rounded-full p-3 backdrop-blur-md transition-all duration-300 hover:scale-110 bg-white/20 text-white hover:bg-white/30"
+            />
 
             {/* Quick View */}
             <Button
@@ -150,22 +145,21 @@ export function ProductCard({
 
         {/* Product Info */}
         <div className="p-6 space-y-4">
-          {/* Stock indicator */}
+          {/* Availability indicator */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Badge className={`text-xs font-medium ${
-                product.stock > 10 ? 'bg-green-500/20 text-green-400 border-green-500/30' :
-                product.stock > 0 ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                product.is_active ? 'bg-green-500/20 text-green-400 border-green-500/30' :
                 'bg-red-500/20 text-red-400 border-red-500/30'
               }`}>
-                {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+                {product.is_active ? 'Available' : 'Out of stock'}
               </Badge>
             </div>
           </div>
 
           {/* Product Name */}
           <h3 className="font-bold text-white text-lg leading-tight line-clamp-2 group-hover:text-brand-red transition-colors duration-300">
-            {product.title}
+            {product.name}
           </h3>
 
           {/* Description */}

@@ -237,14 +237,20 @@ export function Header() {
             </div>
 
             <div className="hidden lg:flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white hover:bg-white/10 hover:text-brand-red transition-all duration-300 rounded-xl px-4 py-2 font-medium"
-              >
-                <Heart className="h-5 w-5 mr-2" />
-                Wishlist
-              </Button>
+              {/* Wishlist */}
+              {user && (
+                <Link to="/wishlist">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/10 hover:text-brand-red transition-all duration-300 rounded-xl px-4 py-2 font-medium"
+                  >
+                    <Heart className="h-5 w-5 mr-2" />
+                    Wishlist
+                  </Button>
+                </Link>
+              )}
+
               <Link to="/cart">
                 <Button
                   variant="ghost"
@@ -479,7 +485,16 @@ export function Header() {
                           </div>
                         </div>
                       </div>
-                      <div className={`grid gap-2 ${isAdmin() ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                      <div className={`grid gap-2 ${isAdmin() ? 'grid-cols-4' : 'grid-cols-3'}`}>
+                        <Link to="/wishlist" onClick={() => setIsMobileMenuOpen(false)}>
+                          <Button
+                            variant="ghost"
+                            className="w-full text-white hover:bg-white/10 rounded-lg p-3 h-auto flex flex-col items-center space-y-1 touch-manipulation"
+                          >
+                            <Heart className="h-5 w-5" />
+                            <span className="text-xs">Wishlist</span>
+                          </Button>
+                        </Link>
                         <Link to="/orders" onClick={() => setIsMobileMenuOpen(false)}>
                           <Button
                             variant="ghost"
