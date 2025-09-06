@@ -14,6 +14,10 @@ import { PerformanceMonitor } from "@/components/PerformanceMonitor";
 import { initializeViewportOptimizations } from "@/utils/viewport";
 import { injectCriticalCSS } from "@/utils/criticalCSS";
 import Index from "./pages/Index";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
+import Terms from "./pages/Terms";
+import AdminPage from "./pages/AdminPage";
 import ProductCategory from "./pages/ProductCategory";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
@@ -64,6 +68,10 @@ const App = () => (
             <main className="flex-1">
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/admin" element={<AdminPage />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route

@@ -189,7 +189,7 @@ export function Footer() {
                 Privacy Policy
               </Link>{" "}
               |{" "}
-              <Link to="/terms-of-service" className="hover:text-white">
+              <Link to="/terms" className="hover:text-white">
                 Terms of Service
               </Link>
             </div>

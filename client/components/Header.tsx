@@ -4,6 +4,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { UserMenu } from "@/components/auth/UserMenu";
+import { AdminPanel } from "@/components/admin/AdminPanel";
 import {
   Search,
   ShoppingCart,
@@ -15,6 +16,7 @@ import {
   ChevronDown,
   User,
   LogIn,
+  Shield,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -25,10 +27,13 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalTab, setAuthModalTab] = useState<"signin" | "signup">("signin");
+  const [authModalTab, setAuthModalTab] = useState<"signin" | "signup">(
+    "signin",
+  );
+  const [adminOpen, setAdminOpen] = useState(false);
   const location = useLocation();
   const { state } = useCart();
-  const { user, loading } = useAuth();
+  const { user, loading, profile } = useAuth();
 
   const handleScroll = useCallback(() => {
     const scrollTop = window.pageYOffset;
@@ -243,37 +248,55 @@ export function Header() {
                   )}
                 </Button>
               </Link>
-              
+
               {/* Authentication Section */}
               {loading ? (
                 <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse" />
               ) : user ? (
-                <UserMenu />
+                <>
+                  {profile?.role === "admin" && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setAdminOpen(true)}
+                      className="text-white hover:bg-white/10 hover:text-brand-red transition-all duration-300 rounded-xl px-4 py-2 font-medium"
+                      aria-label="Open admin panel"
+                    >
+                      <Shield className="h-5 w-5 mr-2" />
+                      Admin
+                    </Button>
+                  )}
+                  <UserMenu />
+                </>
               ) : (
                 <div className="flex items-center space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setAuthModalTab("signin");
-                      setAuthModalOpen(true);
-                    }}
-                    className="text-white hover:bg-white/10 hover:text-brand-red transition-all duration-300 rounded-xl px-4 py-2 font-medium"
-                  >
-                    <LogIn className="h-4 w-4 mr-2" />
-                    Sign In
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      setAuthModalTab("signup");
-                      setAuthModalOpen(true);
-                    }}
-                    className="bg-gradient-to-r from-brand-red to-red-600 hover:from-red-600 hover:to-brand-red text-white font-bold px-4 py-2 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
-                  >
-                    <User className="h-4 w-4 mr-2" />
-                    Sign Up
-                  </Button>
+                  <Link to="/signin" className="inline-block">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setAuthModalTab("signin");
+                        setAuthModalOpen(false);
+                      }}
+                      className="text-white hover:bg-white/10 hover:text-brand-red transition-all duration-300 rounded-xl px-4 py-2 font-medium"
+                    >
+                      <LogIn className="h-4 w-4 mr-2" />
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link to="/signup" className="inline-block">
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setAuthModalTab("signup");
+                        setAuthModalOpen(false);
+                      }}
+                      className="bg-gradient-to-r from-brand-red to-red-600 hover:from-red-600 hover:to-brand-red text-white font-bold px-4 py-2 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      Sign Up
+                    </Button>
+                  </Link>
                 </div>
               )}
             </div>
@@ -449,6 +472,19 @@ export function Header() {
                           <User className="h-5 w-5" />
                           <span className="text-xs">Profile</span>
                         </Button>
+                        {profile?.role === "admin" && (
+                          <Button
+                            onClick={() => {
+                              setAdminOpen(true);
+                              setIsMobileMenuOpen(false);
+                            }}
+                            variant="ghost"
+                            className="col-span-2 text-white hover:bg-white/10 rounded-lg p-3 h-auto flex flex-col items-center space-y-1 touch-manipulation"
+                          >
+                            <Shield className="h-5 w-5" />
+                            <span className="text-xs">Admin</span>
+                          </Button>
+                        )}
                       </div>
                     </div>
                   ) : (
@@ -552,12 +588,17 @@ export function Header() {
           </div>
         </div>
       )}
-      
+
       {/* Authentication Modal */}
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         defaultTab={authModalTab}
+      />
+
+      <AdminPanel
+        isOpen={!!profile && profile.role === "admin" && adminOpen}
+        onClose={() => setAdminOpen(false)}
       />
     </>
   );

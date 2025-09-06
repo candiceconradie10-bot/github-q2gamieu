@@ -69,7 +69,7 @@ export function ProductManager() {
 
   const categories = [
     "corporate-gifts",
-    "corporate-clothing", 
+    "corporate-clothing",
     "workwear",
     "headwear-and-accessories",
     "gifting",
@@ -133,9 +133,7 @@ export function ProductManager() {
         });
       } else {
         // Create new product
-        const { error } = await supabase
-          .from("products")
-          .insert(productData);
+        const { error } = await supabase.from("products").insert(productData);
 
         if (error) throw error;
         toast({
@@ -185,10 +183,7 @@ export function ProductManager() {
     if (!confirm("Are you sure you want to delete this product?")) return;
 
     try {
-      const { error } = await supabase
-        .from("products")
-        .delete()
-        .eq("id", id);
+      const { error } = await supabase.from("products").delete().eq("id", id);
 
       if (error) throw error;
       toast({
@@ -200,28 +195,6 @@ export function ProductManager() {
       toast({
         title: "Error",
         description: error.message || "Failed to delete product.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const toggleProductStatus = async (id: number, currentStatus: boolean) => {
-    try {
-      const { error } = await supabase
-        .from("products")
-        .update({ is_active: !currentStatus })
-        .eq("id", id);
-
-      if (error) throw error;
-      toast({
-        title: "Success",
-        description: `Product ${!currentStatus ? "activated" : "deactivated"} successfully.`,
-      });
-      fetchProducts();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update product status.",
         variant: "destructive",
       });
     }
@@ -292,7 +265,9 @@ export function ProductManager() {
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     placeholder="Premium Corporate Polo Shirt"
                     className="bg-white/10 border-white/20"
                   />
@@ -302,7 +277,9 @@ export function ProductManager() {
                   <Textarea
                     id="description"
                     value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
                     placeholder="High-quality cotton polo shirt perfect for corporate branding..."
                     rows={3}
                     className="bg-white/10 border-white/20"
@@ -316,7 +293,9 @@ export function ProductManager() {
                       type="number"
                       step="0.01"
                       value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, price: e.target.value })
+                      }
                       placeholder="249.00"
                       className="bg-white/10 border-white/20"
                     />
@@ -325,7 +304,9 @@ export function ProductManager() {
                     <Label htmlFor="category">Category</Label>
                     <Select
                       value={formData.category}
-                      onValueChange={(value) => setFormData({ ...formData, category: value })}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, category: value })
+                      }
                     >
                       <SelectTrigger className="bg-white/10 border-white/20">
                         <SelectValue placeholder="Select category" />
@@ -333,7 +314,9 @@ export function ProductManager() {
                       <SelectContent>
                         {categories.map((cat) => (
                           <SelectItem key={cat} value={cat}>
-                            {cat.replace("-", " ").replace(/\b\w/g, l => l.toUpperCase())}
+                            {cat
+                              .replace("-", " ")
+                              .replace(/\b\w/g, (l) => l.toUpperCase())}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -345,7 +328,9 @@ export function ProductManager() {
                   <Input
                     id="image_url"
                     value={formData.image_url}
-                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, image_url: e.target.value })
+                    }
                     placeholder="https://images.pexels.com/..."
                     className="bg-white/10 border-white/20"
                   />
@@ -360,7 +345,9 @@ export function ProductManager() {
                       min="0"
                       max="5"
                       value={formData.rating}
-                      onChange={(e) => setFormData({ ...formData, rating: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, rating: e.target.value })
+                      }
                       placeholder="4.5"
                       className="bg-white/10 border-white/20"
                     />
@@ -372,7 +359,12 @@ export function ProductManager() {
                       type="number"
                       min="0"
                       value={formData.reviews_count}
-                      onChange={(e) => setFormData({ ...formData, reviews_count: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          reviews_count: e.target.value,
+                        })
+                      }
                       placeholder="124"
                       className="bg-white/10 border-white/20"
                     />
@@ -382,9 +374,13 @@ export function ProductManager() {
                   <Switch
                     id="is_active"
                     checked={formData.is_active}
-                    onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, is_active: checked })
+                    }
                   />
-                  <Label htmlFor="is_active">Product is active and visible</Label>
+                  <Label htmlFor="is_active">
+                    Product is active and visible
+                  </Label>
                 </div>
                 <div className="flex justify-end space-x-2 pt-4">
                   <Button
@@ -410,7 +406,10 @@ export function ProductManager() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((product) => (
-          <Card key={product.id} className="bg-white/5 border-white/20 hover:bg-white/10 transition-colors">
+          <Card
+            key={product.id}
+            className="bg-white/5 border-white/20 hover:bg-white/10 transition-colors"
+          >
             <CardContent className="p-6">
               <div className="space-y-4">
                 {/* Product Image */}
@@ -425,8 +424,18 @@ export function ProductManager() {
                       }}
                     />
                     <div className="absolute top-2 right-2">
-                      <Badge className={product.is_active ? "bg-green-500/20 text-green-400 border-green-500/30" : "bg-red-500/20 text-red-400 border-red-500/30"}>
-                        {product.is_active ? <Eye className="h-3 w-3 mr-1" /> : <EyeOff className="h-3 w-3 mr-1" />}
+                      <Badge
+                        className={
+                          product.is_active
+                            ? "bg-green-500/20 text-green-400 border-green-500/30"
+                            : "bg-red-500/20 text-red-400 border-red-500/30"
+                        }
+                      >
+                        {product.is_active ? (
+                          <Eye className="h-3 w-3 mr-1" />
+                        ) : (
+                          <EyeOff className="h-3 w-3 mr-1" />
+                        )}
                         {product.is_active ? "Active" : "Inactive"}
                       </Badge>
                     </div>
@@ -460,7 +469,9 @@ export function ProductManager() {
                     )}
                   </div>
                   <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-                    {product.category.replace("-", " ").replace(/\b\w/g, l => l.toUpperCase())}
+                    {product.category
+                      .replace("-", " ")
+                      .replace(/\b\w/g, (l) => l.toUpperCase())}
                   </Badge>
                 </div>
 
@@ -476,14 +487,20 @@ export function ProductManager() {
                     Edit
                   </Button>
                   <Button
-                    onClick={() => toggleProductStatus(product.id, product.is_active)}
+                    onClick={() =>
+                      toggleProductStatus(product.id, product.is_active)
+                    }
                     variant="outline"
                     size="sm"
                     className={`border-white/20 hover:bg-white/10 ${
                       product.is_active ? "text-orange-400" : "text-green-400"
                     }`}
                   >
-                    {product.is_active ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {product.is_active ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </Button>
                   <Button
                     onClick={() => handleDelete(product.id)}
@@ -504,7 +521,9 @@ export function ProductManager() {
         <Card className="bg-white/5 border-white/20">
           <CardContent className="p-12 text-center">
             <Package className="h-16 w-16 text-white/40 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">No Products</h3>
+            <h3 className="text-xl font-semibold text-white mb-2">
+              No Products
+            </h3>
             <p className="text-white/60 mb-6">
               Start by adding your first product to your catalog.
             </p>
