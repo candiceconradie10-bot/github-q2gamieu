@@ -15,6 +15,7 @@ import {
   ChevronDown,
   User,
   LogIn,
+  Shield,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
