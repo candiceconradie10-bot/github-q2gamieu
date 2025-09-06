@@ -28,6 +28,7 @@ export function Header() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<"signin" | "signup">("signin");
+  const [adminOpen, setAdminOpen] = useState(false);
   const location = useLocation();
   const { state } = useCart();
   const { user, loading, profile } = useAuth();
