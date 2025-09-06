@@ -8,7 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useCart } from "@/contexts/CartContext";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { orders } from "@/lib/supabaseClient";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   CreditCard,
@@ -51,7 +53,7 @@ interface PaymentInfo {
 
 export default function Checkout() {
   const { state, clearCart } = useCart();
-  const { toast } = useToast();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
@@ -97,25 +99,37 @@ export default function Checkout() {
 
     setIsProcessing(true);
 
-    // Simulate payment processing
+    // Create order in database
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      if (!user) {
+        toast.error('Please log in to place an order');
+        return;
+      }
 
-      // Clear cart and show success
-      clearCart();
-      toast({
-        title: "Order Placed Successfully!",
-        description: `Your order total was R${total.toFixed(2)}. You will receive a confirmation email shortly.`,
-      });
+      const orderData = {
+        user_id: user.id,
+        products: state.items.map(item => ({
+          product_id: item.product_id,
+          title: item.product.title,
+          price: item.product.price,
+          quantity: item.quantity
+        })),
+        total,
+        status: 'pending' as const,
+        shipping_address: {
+          customerInfo,
+          shippingAddress
+        }
+      };
 
+      await orders.create(orderData);
+      await clearCart();
+      
+      toast.success('Order placed successfully!');
       navigate("/order-confirmation");
     } catch (error) {
-      toast({
-        title: "Payment Failed",
-        description:
-          "There was an error processing your payment. Please try again.",
-        variant: "destructive",
-      });
+      console.error('Order creation failed:', error);
+      toast.error('Failed to place order. Please try again.');
     } finally {
       setIsProcessing(false);
     }

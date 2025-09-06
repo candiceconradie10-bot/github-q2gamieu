@@ -18,11 +18,11 @@ import {
 export default function Cart() {
   const { state, updateQuantity, removeFromCart, clearCart } = useCart();
 
-  const handleQuantityChange = (id: number, newQuantity: number) => {
+  const handleQuantityChange = async (id: string, newQuantity: number) => {
     if (newQuantity <= 0) {
-      removeFromCart(id);
+      await removeFromCart(id);
     } else {
-      updateQuantity(id, newQuantity);
+      await updateQuantity(id, newQuantity);
     }
   };
 
@@ -115,16 +115,16 @@ export default function Cart() {
                     {/* Product Image & Info */}
                     <div className="flex space-x-4 sm:flex-1">
                       <img
-                        src={item.image}
-                        alt={item.name}
+                        src={item.product.image_url || '/api/placeholder/150/150'}
+                        alt={item.product.title}
                         className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-xl mobile-shadow flex-shrink-0"
                       />
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-foreground mb-1 text-base sm:text-lg leading-tight">
-                          {item.name}
+                          {item.product.title}
                         </h3>
                         <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
-                          {item.description}
+                          {item.product.description}
                         </p>
                       </div>
                     </div>
@@ -171,10 +171,10 @@ export default function Cart() {
                       <div className="flex items-center space-x-4 sm:space-x-2">
                         <div className="text-right">
                           <div className="font-bold text-foreground text-lg sm:text-base">
-                            R{(item.price * item.quantity).toFixed(2)}
+                            R{(item.product.price * item.quantity).toFixed(2)}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            R{item.price.toFixed(2)} each
+                            R{item.product.price.toFixed(2)} each
                           </div>
                         </div>
                         <Button
