@@ -56,8 +56,12 @@ export function UserMenu() {
   };
 
   const getInitials = () => {
-    if (profile?.first_name && profile?.last_name) {
-      return `${profile.first_name[0]}${profile.last_name[0]}`.toUpperCase();
+    if (profile?.full_name) {
+      const names = profile.full_name.split(' ');
+      if (names.length >= 2) {
+        return `${names[0][0]}${names[1][0]}`.toUpperCase();
+      }
+      return profile.full_name[0].toUpperCase();
     }
     if (user?.email) {
       return user.email[0].toUpperCase();
@@ -66,11 +70,8 @@ export function UserMenu() {
   };
 
   const getDisplayName = () => {
-    if (profile?.first_name && profile?.last_name) {
-      return `${profile.first_name} ${profile.last_name}`;
-    }
-    if (profile?.first_name) {
-      return profile.first_name;
+    if (profile?.full_name) {
+      return profile.full_name;
     }
     return user?.email || "User";
   };
@@ -101,9 +102,9 @@ export function UserMenu() {
             <p className="text-xs leading-none text-white/60">
               {user?.email}
             </p>
-            {profile?.company && (
+            {profile?.phone && (
               <p className="text-xs leading-none text-white/60">
-                {profile.company}
+                {profile.phone}
               </p>
             )}
           </div>
