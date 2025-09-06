@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useMemo } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -42,6 +42,29 @@ import {
 } from "lucide-react";
 
 export default function Index() {
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get('search');
+  const { products: allProducts, loading, error } = useProducts();
+  
+  // Filter products based on search query
+  const searchResults = useMemo(() => {
+    if (!searchQuery || !allProducts.length) return [];
+    
+    const query = searchQuery.toLowerCase().trim();
+    return allProducts.filter(product => 
+      product.name.toLowerCase().includes(query) ||
+      product.description?.toLowerCase().includes(query) ||
+      product.category.toLowerCase().includes(query)
+    );
+  }, [searchQuery, allProducts]);
+
+  // Featured products (random selection of 6 products)
+  const featuredProducts = useMemo(() => {
+    if (!allProducts.length) return [];
+    const shuffled = [...allProducts].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 6);
+  }, [allProducts]);
+
   // SEO structured data for FAQ
   const faqData = [
     {
@@ -391,6 +414,86 @@ export default function Index() {
           </div>
         </div>
       </section>
+
+      {/* Search Results Section - Only show when there's a search query */}
+      {searchQuery && (
+        <section className="py-16 sm:py-20 relative">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                Search Results for "{searchQuery}"
+              </h2>
+              <p className="text-gray-300">
+                {loading ? (
+                  "Searching products..."
+                ) : searchResults.length > 0 ? (
+                  `Found ${searchResults.length} product${searchResults.length !== 1 ? 's' : ''}`
+                ) : (
+                  "No products found. Try adjusting your search terms."
+                )}
+              </p>
+            </div>
+            
+            <ProductGrid 
+              products={searchResults}
+              loading={loading}
+              error={error}
+              columns={3}
+            />
+            
+            {!loading && searchResults.length === 0 && (
+              <div className="text-center mt-12">
+                <p className="text-gray-400 mb-6">
+                  Try browsing our categories or searching for different keywords.
+                </p>
+                <Link to="/">
+                  <Button className="bg-gradient-to-r from-brand-red to-red-600 hover:from-red-600 hover:to-brand-red">
+                    Browse All Categories
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Featured Products Section - Only show when not searching */}
+      {!searchQuery && featuredProducts.length > 0 && (
+        <section className="py-16 sm:py-20 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black" />
+          <div className="container mx-auto px-4 relative z-10">
+            <div className="text-center mb-12">
+              <Badge className="bg-gradient-to-r from-brand-red/20 to-red-600/20 text-brand-red border border-brand-red/30 font-bold px-4 py-2 rounded-full mb-4">
+                <Sparkles className="h-4 w-4 mr-2" />
+                Featured Products
+              </Badge>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                Trending Now
+              </h2>
+              <p className="text-gray-300 max-w-2xl mx-auto">
+                Discover our most popular products chosen by customers like you
+              </p>
+            </div>
+            
+            <ProductGrid 
+              products={featuredProducts}
+              loading={loading}
+              error={error}
+              featured={true}
+              columns={3}
+            />
+            
+            <div className="text-center mt-12">
+              <Link to="/corporate-gifts">
+                <Button className="bg-gradient-to-r from-brand-red to-red-600 hover:from-red-600 hover:to-brand-red">
+                  <ShoppingBag className="h-4 w-4 mr-2" />
+                  View All Products
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Catalogue Section */}
       <section

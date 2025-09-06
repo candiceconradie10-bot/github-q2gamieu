@@ -111,15 +111,19 @@ export function UserMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-white/20" />
         
-        <DropdownMenuItem className="hover:bg-white/10 focus:bg-white/10">
-          <User className="mr-2 h-4 w-4" />
-          <span>Profile Settings</span>
-        </DropdownMenuItem>
+        <Link to="/profile">
+          <DropdownMenuItem className="hover:bg-white/10 focus:bg-white/10">
+            <User className="mr-2 h-4 w-4" />
+            <span>Profile Settings</span>
+          </DropdownMenuItem>
+        </Link>
         
-        <DropdownMenuItem className="hover:bg-white/10 focus:bg-white/10">
-          <Package className="mr-2 h-4 w-4" />
-          <span>My Orders</span>
-        </DropdownMenuItem>
+        <Link to="/orders">
+          <DropdownMenuItem className="hover:bg-white/10 focus:bg-white/10">
+            <Package className="mr-2 h-4 w-4" />
+            <span>My Orders</span>
+          </DropdownMenuItem>
+        </Link>
         
         <DropdownMenuItem className="hover:bg-white/10 focus:bg-white/10">
           <Heart className="mr-2 h-4 w-4" />

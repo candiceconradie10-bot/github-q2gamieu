@@ -73,7 +73,7 @@ export const useProduct = (id: string) => {
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      const productData = await products.getById(id);
+      const productData = await products.getById(Number(id));
       setProduct(productData);
       setError(null);
     } catch (err) {

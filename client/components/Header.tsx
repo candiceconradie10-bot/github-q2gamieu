@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "@/components/auth/AuthModal";
@@ -29,7 +29,9 @@ export function Header() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<"signin" | "signup">("signin");
+  const [searchQuery, setSearchQuery] = useState("");
   const location = useLocation();
+  const navigate = useNavigate();
   const { state } = useCart();
   const { user, loading, isAdmin } = useAuth();
 
@@ -210,10 +212,22 @@ export function Header() {
                   <Input
                     type="search"
                     placeholder="Search products..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && searchQuery.trim()) {
+                        navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+                      }
+                    }}
                     className="w-full pl-6 pr-14 py-3 bg-white/12 backdrop-blur-lg border-white/25 rounded-xl text-white placeholder-white/70 focus:bg-white/20 focus:border-brand-red/60 transition-all duration-300 text-lg"
                   />
                   <Button
                     size="sm"
+                    onClick={() => {
+                      if (searchQuery.trim()) {
+                        navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+                      }
+                    }}
                     className="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-brand-red to-red-600 hover:from-red-600 hover:to-brand-red rounded-lg px-4 py-2 shadow-lg hover:shadow-red-500/30 transition-all duration-300"
                   >
                     <Search className="h-4 w-4" />
@@ -396,10 +410,24 @@ export function Header() {
                 <Input
                   type="search"
                   placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && searchQuery.trim()) {
+                      navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+                      setIsMobileMenuOpen(false);
+                    }
+                  }}
                   className="w-full pl-4 pr-12 py-4 bg-white/10 backdrop-blur-md border-white/20 rounded-xl text-white placeholder-white/60 focus:bg-white/20 focus:border-brand-red/50 transition-all duration-300"
                 />
                 <Button
                   size="sm"
+                  onClick={() => {
+                    if (searchQuery.trim()) {
+                      navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+                      setIsMobileMenuOpen(false);
+                    }
+                  }}
                   className="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-brand-red to-red-600 rounded-lg px-3 py-2"
                 >
                   <Search className="h-4 w-4" />
@@ -452,20 +480,24 @@ export function Header() {
                         </div>
                       </div>
                       <div className={`grid gap-2 ${isAdmin() ? 'grid-cols-3' : 'grid-cols-2'}`}>
-                        <Button
-                          variant="ghost"
-                          className="text-white hover:bg-white/10 rounded-lg p-3 h-auto flex flex-col items-center space-y-1 touch-manipulation"
-                        >
-                          <Package className="h-5 w-5" />
-                          <span className="text-xs">Orders</span>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          className="text-white hover:bg-white/10 rounded-lg p-3 h-auto flex flex-col items-center space-y-1 touch-manipulation"
-                        >
-                          <User className="h-5 w-5" />
-                          <span className="text-xs">Profile</span>
-                        </Button>
+                        <Link to="/orders" onClick={() => setIsMobileMenuOpen(false)}>
+                          <Button
+                            variant="ghost"
+                            className="w-full text-white hover:bg-white/10 rounded-lg p-3 h-auto flex flex-col items-center space-y-1 touch-manipulation"
+                          >
+                            <Package className="h-5 w-5" />
+                            <span className="text-xs">Orders</span>
+                          </Button>
+                        </Link>
+                        <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)}>
+                          <Button
+                            variant="ghost"
+                            className="w-full text-white hover:bg-white/10 rounded-lg p-3 h-auto flex flex-col items-center space-y-1 touch-manipulation"
+                          >
+                            <User className="h-5 w-5" />
+                            <span className="text-xs">Profile</span>
+                          </Button>
+                        </Link>
                         {isAdmin() && (
                           <Link 
                             to="/admin"
