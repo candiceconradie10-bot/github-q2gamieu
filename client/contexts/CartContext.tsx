@@ -1,108 +1,29 @@
-import React, { createContext, useContext, useReducer, ReactNode } from "react";
+import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { useAuth } from "./AuthContext";
+import { cart, Product, CartItem as DBCartItem } from "@/lib/supabaseClient";
+import { toast } from "sonner";
 
-export interface Product {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  category: string;
-  description?: string;
-  rating?: number;
-  reviews?: number;
-}
-
-export interface CartItem extends Product {
+export interface CartItem {
+  id: string;
+  product_id: string;
   quantity: number;
+  product: Product;
 }
 
 interface CartState {
   items: CartItem[];
   total: number;
   itemCount: number;
+  loading: boolean;
 }
-
-type CartAction =
-  | { type: "ADD_TO_CART"; payload: Product }
-  | { type: "REMOVE_FROM_CART"; payload: number }
-  | { type: "UPDATE_QUANTITY"; payload: { id: number; quantity: number } }
-  | { type: "CLEAR_CART" };
-
-const initialState: CartState = {
-  items: [],
-  total: 0,
-  itemCount: 0,
-};
-
-const cartReducer = (state: CartState, action: CartAction): CartState => {
-  switch (action.type) {
-    case "ADD_TO_CART": {
-      const existingItem = state.items.find(
-        (item) => item.id === action.payload.id,
-      );
-
-      let newItems: CartItem[];
-      if (existingItem) {
-        newItems = state.items.map((item) =>
-          item.id === action.payload.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item,
-        );
-      } else {
-        newItems = [...state.items, { ...action.payload, quantity: 1 }];
-      }
-
-      const total = newItems.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0,
-      );
-      const itemCount = newItems.reduce((sum, item) => sum + item.quantity, 0);
-
-      return { items: newItems, total, itemCount };
-    }
-
-    case "REMOVE_FROM_CART": {
-      const newItems = state.items.filter((item) => item.id !== action.payload);
-      const total = newItems.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0,
-      );
-      const itemCount = newItems.reduce((sum, item) => sum + item.quantity, 0);
-
-      return { items: newItems, total, itemCount };
-    }
-
-    case "UPDATE_QUANTITY": {
-      const newItems = state.items
-        .map((item) =>
-          item.id === action.payload.id
-            ? { ...item, quantity: Math.max(0, action.payload.quantity) }
-            : item,
-        )
-        .filter((item) => item.quantity > 0);
-
-      const total = newItems.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0,
-      );
-      const itemCount = newItems.reduce((sum, item) => sum + item.quantity, 0);
-
-      return { items: newItems, total, itemCount };
-    }
-
-    case "CLEAR_CART":
-      return initialState;
-
-    default:
-      return state;
-  }
-};
 
 interface CartContextType {
   state: CartState;
-  addToCart: (product: Product) => void;
-  removeFromCart: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
-  clearCart: () => void;
+  addToCart: (product: Product, quantity?: number) => Promise<void>;
+  removeFromCart: (itemId: string) => Promise<void>;
+  updateQuantity: (itemId: string, quantity: number) => Promise<void>;
+  clearCart: () => Promise<void>;
+  refreshCart: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -120,28 +41,123 @@ interface CartProviderProps {
 }
 
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
-  const [state, dispatch] = useReducer(cartReducer, initialState);
+  const { user, loading: authLoading } = useAuth();
+  const [state, setState] = useState<CartState>({
+    items: [],
+    total: 0,
+    itemCount: 0,
+    loading: false
+  });
 
-  const addToCart = (product: Product) => {
-    dispatch({ type: "ADD_TO_CART", payload: product });
+  const calculateTotals = (items: CartItem[]) => {
+    const total = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+    const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+    return { total, itemCount };
   };
 
-  const removeFromCart = (id: number) => {
-    dispatch({ type: "REMOVE_FROM_CART", payload: id });
+  const refreshCart = async () => {
+    if (!user) {
+      setState(prev => ({ ...prev, items: [], total: 0, itemCount: 0 }));
+      return;
+    }
+
+    setState(prev => ({ ...prev, loading: true }));
+    
+    try {
+      const cartItems = await cart.getItems(user.id);
+      const transformedItems: CartItem[] = cartItems.map(item => ({
+        id: item.id,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        product: item.product!
+      }));
+      
+      const { total, itemCount } = calculateTotals(transformedItems);
+      
+      setState({
+        items: transformedItems,
+        total,
+        itemCount,
+        loading: false
+      });
+    } catch (error) {
+      console.error('Error refreshing cart:', error);
+      toast.error('Failed to load cart');
+      setState(prev => ({ ...prev, loading: false }));
+    }
   };
 
-  const updateQuantity = (id: number, quantity: number) => {
-    dispatch({ type: "UPDATE_QUANTITY", payload: { id, quantity } });
+  useEffect(() => {
+    if (!authLoading) {
+      refreshCart();
+    }
+  }, [user, authLoading]);
+
+  const addToCart = async (product: Product, quantity: number = 1) => {
+    if (!user) {
+      toast.error('Please log in to add items to cart');
+      return;
+    }
+
+    try {
+      await cart.addItem(user.id, product.id, quantity);
+      await refreshCart();
+      toast.success(`${product.title} added to cart`);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add item to cart');
+    }
   };
 
-  const clearCart = () => {
-    dispatch({ type: "CLEAR_CART" });
+  const removeFromCart = async (itemId: string) => {
+    if (!user) return;
+
+    try {
+      await cart.removeItem(itemId);
+      await refreshCart();
+      toast.success('Item removed from cart');
+    } catch (error) {
+      console.error('Error removing from cart:', error);
+      toast.error('Failed to remove item from cart');
+    }
+  };
+
+  const updateQuantity = async (itemId: string, quantity: number) => {
+    if (!user) return;
+
+    try {
+      await cart.updateQuantity(itemId, quantity);
+      await refreshCart();
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+      toast.error('Failed to update quantity');
+    }
+  };
+
+  const clearCart = async () => {
+    if (!user) return;
+
+    try {
+      await cart.clearCart(user.id);
+      await refreshCart();
+      toast.success('Cart cleared');
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+      toast.error('Failed to clear cart');
+    }
+  };
+
+  const value = {
+    state,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    refreshCart
   };
 
   return (
-    <CartContext.Provider
-      value={{ state, addToCart, removeFromCart, updateQuantity, clearCart }}
-    >
+    <CartContext.Provider value={value}>
       {children}
     </CartContext.Provider>
   );
