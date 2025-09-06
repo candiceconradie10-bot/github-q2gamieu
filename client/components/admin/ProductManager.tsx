@@ -205,28 +205,6 @@ export function ProductManager() {
     }
   };
 
-  const toggleProductStatus = async (id: number, currentStatus: boolean) => {
-    try {
-      const { error } = await supabase
-        .from("products")
-        .update({ is_active: !currentStatus })
-        .eq("id", id);
-
-      if (error) throw error;
-      toast({
-        title: "Success",
-        description: `Product ${!currentStatus ? "activated" : "deactivated"} successfully.`,
-      });
-      fetchProducts();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update product status.",
-        variant: "destructive",
-      });
-    }
-  };
-
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
