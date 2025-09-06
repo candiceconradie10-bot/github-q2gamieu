@@ -44,11 +44,12 @@ interface ShippingAddress {
 }
 
 interface PaymentInfo {
-  method: "card" | "eft" | "payfast";
-  cardNumber?: string;
-  expiryDate?: string;
-  cvv?: string;
-  cardName?: string;
+  method: "eft" | "pending";
+  // Payment processing temporarily disabled
+  // cardNumber?: string;
+  // expiryDate?: string;
+  // cvv?: string;
+  // cardName?: string;
 }
 
 export default function Checkout() {
@@ -73,7 +74,7 @@ export default function Checkout() {
   });
 
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>({
-    method: "card",
+    method: "pending",
   });
 
   const [billingDifferent, setBillingDifferent] = useState(false);
@@ -456,24 +457,11 @@ export default function Checkout() {
                     onValueChange={(value) =>
                       setPaymentInfo({
                         ...paymentInfo,
-                        method: value as "card" | "eft" | "payfast",
+                        method: value as "eft" | "pending",
                       })
                     }
                     className="space-y-3"
                   >
-                    <div className="flex items-center space-x-3 p-4 rounded-xl border border-border hover:border-brand-red/50 transition-colors touch-manipulation">
-                      <RadioGroupItem
-                        value="card"
-                        id="card"
-                        className="w-5 h-5"
-                      />
-                      <Label htmlFor="card" className="flex-1 font-medium">
-                        Credit/Debit Card
-                        <span className="block text-sm text-muted-foreground font-normal">
-                          Visa, Mastercard, American Express
-                        </span>
-                      </Label>
-                    </div>
                     <div className="flex items-center space-x-3 p-4 rounded-xl border border-border hover:border-brand-red/50 transition-colors touch-manipulation">
                       <RadioGroupItem
                         value="eft"
@@ -483,119 +471,26 @@ export default function Checkout() {
                       <Label htmlFor="eft" className="flex-1 font-medium">
                         EFT/Bank Transfer
                         <span className="block text-sm text-muted-foreground font-normal">
-                          Direct bank transfer
+                          Direct bank transfer - Payment details will be provided after order
                         </span>
                       </Label>
                     </div>
                     <div className="flex items-center space-x-3 p-4 rounded-xl border border-border hover:border-brand-red/50 transition-colors touch-manipulation">
                       <RadioGroupItem
-                        value="payfast"
-                        id="payfast"
+                        value="pending"
+                        id="pending"
                         className="w-5 h-5"
                       />
-                      <Label htmlFor="payfast" className="flex-1 font-medium">
-                        PayFast
+                      <Label htmlFor="pending" className="flex-1 font-medium">
+                        Pay on Delivery / Manual Payment
                         <span className="block text-sm text-muted-foreground font-normal">
-                          Secure online payment gateway
+                          Payment processing will be arranged after order confirmation
                         </span>
                       </Label>
                     </div>
                   </RadioGroup>
 
-                  {paymentInfo.method === "card" && (
-                    <div className="space-y-4 pt-4 border-t border-border">
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="cardName"
-                          className="flex items-center text-sm font-medium"
-                        >
-                          <span>Cardholder Name</span>
-                          <span className="text-red-500 ml-1">*</span>
-                        </Label>
-                        <Input
-                          id="cardName"
-                          required
-                          value={paymentInfo.cardName || ""}
-                          onChange={(e) =>
-                            setPaymentInfo({
-                              ...paymentInfo,
-                              cardName: e.target.value,
-                            })
-                          }
-                          className="h-12 rounded-xl text-base"
-                          placeholder="John Doe"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="cardNumber"
-                          className="flex items-center text-sm font-medium"
-                        >
-                          <span>Card Number</span>
-                          <span className="text-red-500 ml-1">*</span>
-                        </Label>
-                        <Input
-                          id="cardNumber"
-                          required
-                          placeholder="1234 5678 9012 3456"
-                          value={paymentInfo.cardNumber || ""}
-                          onChange={(e) =>
-                            setPaymentInfo({
-                              ...paymentInfo,
-                              cardNumber: e.target.value,
-                            })
-                          }
-                          className="h-12 rounded-xl text-base"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label
-                            htmlFor="expiryDate"
-                            className="flex items-center text-sm font-medium"
-                          >
-                            <span>Expiry Date</span>
-                            <span className="text-red-500 ml-1">*</span>
-                          </Label>
-                          <Input
-                            id="expiryDate"
-                            required
-                            placeholder="MM/YY"
-                            value={paymentInfo.expiryDate || ""}
-                            onChange={(e) =>
-                              setPaymentInfo({
-                                ...paymentInfo,
-                                expiryDate: e.target.value,
-                              })
-                            }
-                            className="h-12 rounded-xl text-base"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label
-                            htmlFor="cvv"
-                            className="flex items-center text-sm font-medium"
-                          >
-                            <span>CVV</span>
-                            <span className="text-red-500 ml-1">*</span>
-                          </Label>
-                          <Input
-                            id="cvv"
-                            required
-                            placeholder="123"
-                            value={paymentInfo.cvv || ""}
-                            onChange={(e) =>
-                              setPaymentInfo({
-                                ...paymentInfo,
-                                cvv: e.target.value,
-                              })
-                            }
-                            className="h-12 rounded-xl text-base"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  {/* Card payment form removed - payment processing disabled */}
 
                   {paymentInfo.method === "eft" && (
                     <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl mobile-glass">
@@ -610,13 +505,12 @@ export default function Checkout() {
                     </div>
                   )}
 
-                  {paymentInfo.method === "payfast" && (
-                    <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl mobile-glass">
+                  {paymentInfo.method === "pending" && (
+                    <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl mobile-glass">
                       <div className="flex items-start space-x-3">
-                        <Shield className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                        <p className="text-sm text-green-800 dark:text-green-200 font-medium">
-                          You will be redirected to PayFast to complete your
-                          payment securely.
+                        <Timer className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                        <p className="text-sm text-yellow-800 dark:text-yellow-200 font-medium">
+                          Payment will be arranged after order confirmation. Our team will contact you with payment options.
                         </p>
                       </div>
                     </div>
