@@ -15,10 +15,13 @@ import {
   ChevronDown,
   User,
   LogIn,
+  Settings,
+  Package,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
+import { Avatar, AvatarFallback } from "./ui/avatar";
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -28,7 +31,7 @@ export function Header() {
   const [authModalTab, setAuthModalTab] = useState<"signin" | "signup">("signin");
   const location = useLocation();
   const { state } = useCart();
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
 
   const handleScroll = useCallback(() => {
     const scrollTop = window.pageYOffset;
@@ -243,6 +246,21 @@ export function Header() {
                   )}
                 </Button>
               </Link>
+
+              {/* Admin Panel Access - Only show for admin users */}
+              {user && isAdmin() && (
+                <Link to="/admin">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/10 hover:text-brand-red transition-all duration-300 rounded-xl px-4 py-2 font-medium"
+                    title="Admin Panel"
+                  >
+                    <Settings className="h-5 w-5 mr-2" />
+                    Admin
+                  </Button>
+                </Link>
+              )}
               
               {/* Authentication Section */}
               {loading ? (
@@ -434,7 +452,7 @@ export function Header() {
                           </div>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className={`grid gap-2 ${isAdmin() ? 'grid-cols-3' : 'grid-cols-2'}`}>
                         <Button
                           variant="ghost"
                           className="text-white hover:bg-white/10 rounded-lg p-3 h-auto flex flex-col items-center space-y-1 touch-manipulation"
@@ -449,6 +467,20 @@ export function Header() {
                           <User className="h-5 w-5" />
                           <span className="text-xs">Profile</span>
                         </Button>
+                        {isAdmin() && (
+                          <Link 
+                            to="/admin"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            <Button
+                              variant="ghost"
+                              className="w-full text-white hover:bg-white/10 rounded-lg p-3 h-auto flex flex-col items-center space-y-1 touch-manipulation"
+                            >
+                              <Settings className="h-5 w-5" />
+                              <span className="text-xs">Admin</span>
+                            </Button>
+                          </Link>
+                        )}
                       </div>
                     </div>
                   ) : (
