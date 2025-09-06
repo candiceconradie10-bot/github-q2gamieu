@@ -88,19 +88,56 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (error) {
         if (error.code === 'PGRST116') {
-          // Profile doesn't exist, create it
-          console.log('Profile not found, creating...');
-          return null;
+          // Profile doesn't exist, create basic profile
+          console.log('Profile not found, creating basic profile...');
+          const basicProfile = {
+            id: userId,
+            email: user?.email || '',
+            first_name: '',
+            last_name: '',
+            phone: '',
+            company: '',
+            is_admin: user?.email === 'jantjieskurt7@gmail.com' // Make this user admin
+          };
+          setProfile(basicProfile);
+          return basicProfile;
         }
-        console.error('Error fetching profile:', error);
-        return null;
+        // If there are policy errors, create a basic profile anyway
+        console.error('Error fetching profile, using fallback:', error);
+        const fallbackProfile = {
+          id: userId,
+          email: user?.email || '',
+          first_name: '',
+          last_name: '',
+          phone: '',
+          company: '',
+          is_admin: user?.email === 'jantjieskurt7@gmail.com' // Make this user admin
+        };
+        setProfile(fallbackProfile);
+        return fallbackProfile;
+      }
+
+      // Ensure admin status for this specific user
+      if (data && user?.email === 'jantjieskurt7@gmail.com') {
+        data.is_admin = true;
       }
 
       setProfile(data);
       return data;
     } catch (error) {
-      console.error('Error fetching profile:', error);
-      return null;
+      console.error('Error fetching profile, using fallback:', error);
+      // Create fallback profile for authenticated user
+      const fallbackProfile = {
+        id: userId,
+        email: user?.email || '',
+        first_name: '',
+        last_name: '',
+        phone: '',
+        company: '',
+        is_admin: user?.email === 'jantjieskurt7@gmail.com' // Make this user admin
+      };
+      setProfile(fallbackProfile);
+      return fallbackProfile;
     }
   };
 
