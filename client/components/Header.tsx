@@ -30,7 +30,7 @@ export function Header() {
   const [authModalTab, setAuthModalTab] = useState<"signin" | "signup">("signin");
   const location = useLocation();
   const { state } = useCart();
-  const { user, loading } = useAuth();
+  const { user, loading, profile } = useAuth();
 
   const handleScroll = useCallback(() => {
     const scrollTop = window.pageYOffset;
