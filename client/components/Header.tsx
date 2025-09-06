@@ -251,13 +251,12 @@ export function Header() {
               {user && isAdmin() && (
                 <Link to="/admin">
                   <Button
-                    variant="ghost"
                     size="sm"
-                    className="text-white hover:bg-white/10 hover:text-brand-red transition-all duration-300 rounded-xl px-4 py-2 font-medium"
-                    title="Admin Panel"
+                    className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold px-4 py-2 rounded-xl shadow-lg transition-all duration-300 hover:scale-105 ring-2 ring-orange-300"
+                    title="Admin Panel - Manage Products & Orders"
                   >
                     <Settings className="h-5 w-5 mr-2" />
-                    Admin
+                    Admin Panel
                   </Button>
                 </Link>
               )}

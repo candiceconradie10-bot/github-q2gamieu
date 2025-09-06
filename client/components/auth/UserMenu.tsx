@@ -20,10 +20,11 @@ import {
   LogOut,
   Package,
   CreditCard,
+  Shield,
 } from "lucide-react";
 
 export function UserMenu() {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, isAdmin } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -128,6 +129,19 @@ export function UserMenu() {
           <CreditCard className="mr-2 h-4 w-4" />
           <span>Payment Methods</span>
         </DropdownMenuItem>
+
+        {/* Admin Panel Access - Only show for admin users */}
+        {isAdmin() && (
+          <>
+            <DropdownMenuSeparator className="bg-white/20" />
+            <Link to="/admin">
+              <DropdownMenuItem className="hover:bg-orange-500/20 focus:bg-orange-500/20 text-orange-400 hover:text-orange-300">
+                <Shield className="mr-2 h-4 w-4" />
+                <span>Admin Panel</span>
+              </DropdownMenuItem>
+            </Link>
+          </>
+        )}
         
         <DropdownMenuSeparator className="bg-white/20" />
         
