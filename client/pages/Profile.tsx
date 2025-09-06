@@ -18,6 +18,7 @@ import {
   Loader2,
   Edit3,
   Shield,
+  CreditCard,
 } from "lucide-react";
 
 export default function Profile() {
@@ -128,9 +129,10 @@ export default function Profile() {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="profile">Profile Information</TabsTrigger>
             <TabsTrigger value="security">Account Security</TabsTrigger>
+            <TabsTrigger value="payments">Payment Methods</TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile" className="space-y-6">
@@ -362,6 +364,51 @@ export default function Profile() {
                     </p>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="payments" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <CreditCard className="h-5 w-5" />
+                  <span>Payment Methods</span>
+                </CardTitle>
+                <p className="text-muted-foreground">
+                  Manage your payment methods for faster checkout
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 border rounded-lg">
+                  <h4 className="font-medium mb-2">Secure Payment Processing</h4>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    All payment information is encrypted and stored securely. We never store your full card details.
+                  </p>
+                  <Button 
+                    onClick={() => window.location.href = '/payment-methods'}
+                    className="bg-gradient-to-r from-brand-red to-red-600 hover:from-red-600 hover:to-brand-red"
+                  >
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    Manage Payment Methods
+                  </Button>
+                </div>
+
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Shield className="h-4 w-4 text-blue-600" />
+                    <h4 className="font-medium text-blue-800">Accepted Methods</h4>
+                  </div>
+                  <p className="text-sm text-blue-700 mb-3">
+                    We accept all major credit cards, debit cards, and local payment methods.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-2 py-1 bg-white text-xs rounded border">Visa</span>
+                    <span className="px-2 py-1 bg-white text-xs rounded border">Mastercard</span>
+                    <span className="px-2 py-1 bg-white text-xs rounded border">PayFast</span>
+                    <span className="px-2 py-1 bg-white text-xs rounded border">EFT</span>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
