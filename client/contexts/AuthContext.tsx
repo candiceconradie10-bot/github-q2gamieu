@@ -1,19 +1,15 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { Profile } from '@/lib/supabaseClient';
-
-interface User {
-  id: string;
-  email: string;
-}
+import { User, Session, AuthError } from '@supabase/supabase-js';
+import { supabase, Profile } from '@/lib/supabaseClient';
 
 interface AuthContextType {
   user: User | null;
   profile: Profile | null;
-  session: any;
+  session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, userData?: any) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signOut: () => Promise<{ error: any }>;
+  signUp: (email: string, password: string, userData?: any) => Promise<{ error: AuthError | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+  signOut: () => Promise<{ error: AuthError | null }>;
   updateProfile: (updates: Partial<Profile>) => Promise<{ error: any }>;
   isAdmin: () => boolean;
 }
@@ -35,124 +31,150 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored session
-    const storedUser = localStorage.getItem('auth_user');
-    const storedProfile = localStorage.getItem('auth_profile');
-    
-    if (storedUser && storedProfile) {
-      setUser(JSON.parse(storedUser));
-      setProfile(JSON.parse(storedProfile));
-      setSession({ user: JSON.parse(storedUser) });
-    }
-    
-    setLoading(false);
+    // Get initial session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Error getting session:', error);
+        } else {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user) {
+            await fetchProfile(session.user.id);
+          }
+        }
+      } catch (error) {
+        console.error('Error in getInitialSession:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getInitialSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        } else {
+          setProfile(null);
+        }
+        
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  const fetchProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // Profile doesn't exist, create it
+          console.log('Profile not found, creating...');
+          return null;
+        }
+        console.error('Error fetching profile:', error);
+        return null;
+      }
+
+      setProfile(data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      return null;
+    }
+  };
 
   const signUp = async (email: string, password: string, userData?: any) => {
     try {
-      // For development - simple registration
-      const user = { id: crypto.randomUUID(), email };
-      const profile = { 
-        id: user.id,
-        email, 
-        full_name: userData?.full_name || `${userData?.firstName || ''} ${userData?.lastName || ''}`.trim() || 'User',
-        phone: userData?.phone,
-        is_admin: false,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      
-      setUser(user);
-      setProfile(profile);
-      setSession({ user });
-      
-      localStorage.setItem('auth_user', JSON.stringify(user));
-      localStorage.setItem('auth_profile', JSON.stringify(profile));
-      
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: userData?.full_name || `${userData?.firstName || ''} ${userData?.lastName || ''}`.trim() || '',
+            phone: userData?.phone || '',
+          }
+        }
+      });
+
+      if (error) {
+        return { error };
+      }
+
+      // If signup successful but no session (email confirmation required)
+      if (data.user && !data.session) {
+        return { error: null }; // User needs to confirm email
+      }
+
       return { error: null };
     } catch (error: any) {
-      return { error: { message: error.message || 'Signup failed' } };
+      return { error: { message: error.message } as AuthError };
     }
   };
 
   const signIn = async (email: string, password: string) => {
     try {
-      // For development - simple authentication
-      if (email === 'admin@test.com' && password === 'admin') {
-        const user = { id: '11111111-1111-1111-1111-111111111111', email: 'admin@test.com' };
-        const profile = { 
-          id: '11111111-1111-1111-1111-111111111111',
-          email: 'admin@test.com', 
-          full_name: 'Test Admin',
-          is_admin: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        
-        setUser(user);
-        setProfile(profile);
-        setSession({ user });
-        
-        localStorage.setItem('auth_user', JSON.stringify(user));
-        localStorage.setItem('auth_profile', JSON.stringify(profile));
-        
-        return { error: null };
-      } else if (email === 'user@test.com' && password === 'user') {
-        const user = { id: '22222222-2222-2222-2222-222222222222', email: 'user@test.com' };
-        const profile = { 
-          id: '22222222-2222-2222-2222-222222222222',
-          email: 'user@test.com', 
-          full_name: 'Test User',
-          is_admin: false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        
-        setUser(user);
-        setProfile(profile);
-        setSession({ user });
-        
-        localStorage.setItem('auth_user', JSON.stringify(user));
-        localStorage.setItem('auth_profile', JSON.stringify(profile));
-        
-        return { error: null };
-      }
-      
-      return { error: { message: 'Invalid email or password. Try admin@test.com/admin or user@test.com/user' } };
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      return { error };
     } catch (error: any) {
-      return { error: { message: error.message || 'Sign in failed' } };
+      return { error: { message: error.message } as AuthError };
     }
   };
 
   const signOut = async () => {
     try {
-      setUser(null);
-      setProfile(null);
-      setSession(null);
-      
-      localStorage.removeItem('auth_user');
-      localStorage.removeItem('auth_profile');
-      
-      return { error: null };
+      const { error } = await supabase.auth.signOut();
+      if (!error) {
+        setProfile(null);
+        setUser(null);
+        setSession(null);
+      }
+      return { error };
     } catch (error: any) {
-      return { error: { message: error.message || 'Sign out failed' } };
+      return { error: { message: error.message } as AuthError };
     }
   };
 
   const updateProfile = async (updates: Partial<Profile>) => {
-    if (!user || !profile) return { error: new Error('No user logged in') };
+    if (!user) return { error: new Error('No user logged in') };
 
     try {
-      const updatedProfile = { ...profile, ...updates, updated_at: new Date().toISOString() };
-      setProfile(updatedProfile);
-      localStorage.setItem('auth_profile', JSON.stringify(updatedProfile));
-      return { error: null };
+      const { error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', user.id);
+
+      if (!error && profile) {
+        setProfile({ ...profile, ...updates });
+      }
+
+      return { error };
     } catch (error: any) {
-      return { error: { message: error.message || 'Profile update failed' } };
+      return { error };
     }
   };
 
