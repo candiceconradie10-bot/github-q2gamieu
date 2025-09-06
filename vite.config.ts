@@ -9,6 +9,10 @@ export default defineConfig(({ mode }) => ({
     host: "0.0.0.0",
     port: 5000,
     strictPort: true,
+    allowedHosts: [
+      "2e918fb4-ff5e-4156-8cdf-8d8be92eb679-00-1dou7iee0fj8n.picard.replit.dev",
+      "netlify"
+    ],
   },
   build: {
     outDir: "dist/spa",
