@@ -14,6 +14,8 @@ A fully functional e-commerce platform built for APEX promotional products compa
 - ✅ **Order Management**: Complete checkout flow with order creation and tracking
 - ✅ **Admin Panel**: Secure admin interface for product and order management
 - ✅ **Mobile Responsive**: Fully optimized for mobile devices with touch-friendly interface
+- ✅ **Platform Independence**: Removed Replit-specific dependencies for universal deployment
+- ✅ **Payment Simplification**: Temporarily disabled online payment processing (EFT and manual payment options available)
 
 ## Tech Stack
 - **Frontend**: React + TypeScript + Vite + TailwindCSS
@@ -94,11 +96,17 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 - Requires `is_admin: true` in user profile
 
 ## Next Steps for Production
-1. ✅ Configure Supabase environment variables in Netlify
-2. ✅ Deploy to GitHub and connect to Netlify
-3. ⏳ Optional: Integrate payment processing (Stripe/PayFast)
+1. ✅ Configure Supabase environment variables in hosting platform
+2. ✅ Deploy to any hosting platform (Netlify, Vercel, etc.)
+3. ⏳ Optional: Re-enable payment processing (Stripe/PayFast) when needed
 4. ⏳ Optional: Set up email notifications for orders
 5. ⏳ Optional: Add inventory alerts and automated stock management
+
+## Payment Status
+- **Current**: Manual payment processing (EFT/Bank transfer and arrange-later options)
+- **Removed**: Stripe dependencies and card payment forms
+- **Benefit**: Simpler deployment, no payment gateway setup required
+- **Note**: Payment integration can be re-added when needed
 
 ## Support & Maintenance
 - Database: Managed by Supabase with automatic backups
