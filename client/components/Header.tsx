@@ -251,7 +251,21 @@ export function Header() {
               {loading ? (
                 <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse" />
               ) : user ? (
-                <UserMenu />
+                <>
+                  {profile?.role === "admin" && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setAdminOpen(true)}
+                      className="text-white hover:bg-white/10 hover:text-brand-red transition-all duration-300 rounded-xl px-4 py-2 font-medium"
+                      aria-label="Open admin panel"
+                    >
+                      <Shield className="h-5 w-5 mr-2" />
+                      Admin
+                    </Button>
+                  )}
+                  <UserMenu />
+                </>
               ) : (
                 <div className="flex items-center space-x-2">
                   <Button
