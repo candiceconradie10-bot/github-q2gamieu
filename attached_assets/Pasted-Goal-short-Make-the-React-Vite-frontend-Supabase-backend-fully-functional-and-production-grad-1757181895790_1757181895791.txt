@@ -1,0 +1,267 @@
+Goal (short)
+
+Make the React + Vite frontend + Supabase backend fully functional and production-grade. Fix outstanding runtime bugs, harden Supabase setup (db, policies, storage), drastically improve the admin panel (product CRUD, order management, logs), add a working Wishlist page, add a Payment Methods management page (UI + secure integration placeholders for Stripe), and provide tests + deployment checklist.
+
+Instructions (what to do — prioritized)
+
+Run tests & reproduce bugs
+
+Start dev server: npm install && npm run dev in the client folder (or root if app is root).
+
+Open browser, reproduce flows: Sign-up/login (already fixed), product listing, add-to-cart, create order, admin pages, wishlist, payment methods.
+
+Capture console errors, network failures, and failing UI behavior. Fix immediately and log each fix as a git commit with descriptive message.
+
+Supabase: ensure proper client init
+
+Ensure only one Supabase client used. Use this file (replace path as needed): src/lib/supabaseClient.ts
+
+import { createClient } from '@supabase/supabase-js';
+
+const url = import.meta.env.VITE_SUPABASE_URL;
+const anon = import.meta.env.VITE_SUPABASE_ANON_KEY;
+if (!url || !anon) throw new Error('VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY missing');
+
+export const supabase = createClient(url, anon);
+
+
+Replace any hard-coded keys or duplicate createClient instances.
+
+Database schema migrations (run in Supabase SQL editor)
+
+Create wishlist and payment methods tables, plus minimal admin/audit structures:
+
+-- products table assumed present; create wishlist
+create table if not exists wishlists (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  product_id uuid not null,
+  created_at timestamptz default now(),
+  unique (user_id, product_id)
+);
+
+create table if not exists payment_methods (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  provider text not null, -- e.g. 'stripe'
+  provider_pm_id text not null, -- token/id from provider
+  is_default boolean default false,
+  metadata jsonb,
+  created_at timestamptz default now()
+);
+
+-- admin/audit
+create table if not exists admin_activity (
+  id uuid default gen_random_uuid() primary key,
+  admin_id uuid references auth.users(id),
+  action text not null,
+  target_type text,
+  target_id text,
+  payload jsonb,
+  created_at timestamptz default now()
+);
+
+
+Ensure products, orders, cart_items tables exist and have proper foreign keys.
+
+Row Level Security (RLS) & Policies
+
+Enable RLS on wishlists & payment_methods and add policies:
+
+alter table wishlists enable row level security;
+create policy "wishlists: users can manage their own" on wishlists
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+alter table payment_methods enable row level security;
+create policy "payment_methods: users manage own" on payment_methods
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- admin_activity: only admins can insert/select
+alter table admin_activity enable row level security;
+create policy "admin_activity: admin only" on admin_activity
+  for all using (exists (
+    select 1 from profiles p where p.id = auth.uid() and p.role = 'admin'
+  ));
+
+
+If you use a profiles table, ensure profiles.role contains 'admin' for admin accounts.
+
+Supabase Storage (images)
+
+Create a storage bucket (e.g., products) with public disabled.
+
+Use signed URLs for images on the client: supabase.storage.from('products').getPublicUrl(path) OR createSignedUrl for private buckets.
+
+Add file upload in admin product create/edit flows using upload() and save returned path to products table.
+
+Admin panel improvements
+
+Add the following pages in /admin behind role-based guard (only visible to admin users):
+
+Dashboard: stats (orders count, revenue, low stock alerts).
+
+Products: list, search, pagination, bulk upload (CSV), create/edit (with image upload), soft-delete.
+
+Orders: sortable list, filter by status (pending, shipped, canceled), view order details, change status, export CSV.
+
+Customers: view profiles, user activity.
+
+Activity Log: show admin_activity entries. Insert records on all admin mutations.
+
+Implement role guard:
+
+// Example: src/hooks/useAdmin.ts
+import { supabase } from '~/lib/supabaseClient';
+export async function isAdmin() {
+  const user = supabase.auth.user();
+  if (!user) return false;
+  const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+  return data?.role === 'admin';
+}
+
+
+Add audit logging on admin actions:
+
+await supabase.from('admin_activity').insert({ admin_id: user.id, action: 'product.create', target_type: 'product', target_id: productId, payload: { name, price } });
+
+
+Wishlist page (UI + API)
+
+UI: Add "Add to Wishlist" button on product cards. Wishlist page shows user's wished items with quick add-to-cart and remove.
+
+Client logic (simplified):
+
+// Add to wishlist
+await supabase.from('wishlists').insert({ user_id: user.id, product_id });
+// Remove
+await supabase.from('wishlists').delete().match({ user_id: user.id, product_id });
+// Fetch
+const { data } = await supabase.from('wishlists').select('product_id, products(*)').eq('user_id', user.id);
+
+
+Ensure optimistic UI updates and error handling.
+
+Payment Methods page (UI + placeholder integration)
+
+Security note: Never store raw card details. Use Stripe (or other provider) to tokenize payment methods.
+
+Implement UI where users can:
+
+Add new payment method (redirect to Stripe Checkout / Stripe Elements)
+
+See saved methods (provider + last4 + expiry)
+
+Set default / remove method
+
+Provide serverless endpoint (Netlify Function or Supabase Edge Function) to create ephemeral intent / attach payment method to customer. Example placeholder flow:
+
+Client -> call serverless /create-setup-intent -> server calls Stripe with secret -> returns client_secret -> client collects card via Stripe Elements and confirms -> server stores provider_pm_id in payment_methods table.
+
+If you’re not ready to integrate Stripe backend, implement a mock flow that allows adding/removing methods saved in payment_methods table with provider='mock' for testing, and label as “Test Card”.
+
+Error handling & UX polish
+
+Global error boundary + toast system for success/error messages.
+
+Add loading spinners for async actions.
+
+Validate forms and show inline errors for auth, product creation, wishlist actions.
+
+Automated tests & manual test checklist
+
+Add a few end-to-end tests using Playwright (or Cypress) for:
+
+Signup/login flow
+
+Admin product creation (upload image)
+
+Wishlist add/remove
+
+Payment methods add (mock)
+
+Order creation and status change
+
+Provide a manual test checklist in the repo docs/QA_CHECKLIST.md.
+
+Deployment / env vars checklist
+
+Ensure env vars in Replit and Netlify are set (no secrets in repo):
+
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=... (only in serverless env, not client)
+STRIPE_SECRET_KEY=... (only in server)
+STRIPE_PUBLISHABLE_KEY=... (client)
+
+
+On Netlify: build command: npm run build:client (or root), publish dir: dist/spa (or dist). If build in client/: set build command to cd client && npm ci && npm run build and publish client/dist.
+
+Logging & monitoring
+
+Add client-side Sentry or console logs and serverless logs for broken flows.
+
+Create a logs table or integrate external monitoring for admin errors.
+
+Commit & PR
+
+Work in a feature branch: fix/admin-wishlist-payments.
+
+Create small commits per logical step (supabase schema, client init, admin UI, wishlist, payments).
+
+Add a clear PR description and the QA checklist.
+
+Acceptance Criteria (how you’ll know it’s done)
+
+ Supabase client uses env vars and throws early if missing.
+
+ Wishlists table exists, RLS enabled, policies in place; users can add/remove items and view wishlist.
+
+ Payment methods table exists; UI allows adding/removing methods (mock flow working). Stripe hooks present as TODOs with serverless endpoint stubs.
+
+ Admin panel contains product CRUD + image upload (storage), orders list with status change, and admin activity log entries created on admin actions.
+
+ All previous runtime console/network errors fixed; dev build and production build run without errors.
+
+ Minimal Playwright tests pass for critical user journeys.
+
+ Clear docs in /docs for env vars, deployment steps, and manual QA checklist.
+
+ All secrets remain out of source control.
+
+Key code snippets (for quick copy)
+
+Supabase client init (use exactly)
+
+// src/lib/supabaseClient.ts
+import { createClient } from '@supabase/supabase-js';
+const url = import.meta.env.VITE_SUPABASE_URL;
+const anon = import.meta.env.VITE_SUPABASE_ANON_KEY;
+if (!url || !anon) throw new Error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY');
+export const supabase = createClient(url, anon);
+
+
+Wishlist usage (client)
+
+// add to wishlist
+await supabase.from('wishlists').insert({ user_id: user.id, product_id });
+
+// fetch wishlist with product join
+const { data } = await supabase
+  .from('wishlists')
+  .select('id, created_at, products(*)')
+  .eq('user_id', user.id);
+
+
+Admin audit insert
+
+await supabase.from('admin_activity').insert({
+  admin_id: user.id,
+  action: 'product.update',
+  target_type: 'product',
+  target_id: product.id,
+  payload: { before: oldProduct, after: newProduct }
+});
+
+Final note to the Replit AI / dev
+
+Work iteratively: get Supabase client stability first, then DB migrations and RLS, then admin Product CRUD + storage, wishlist, payment-methods UI (mock) and serverless stubs for Stripe. Run tests and produce a PR with the QA checklist. If anything requires direct credentials (Stripe secret or Supabase service role), leave a secure placeholder and document where to add the values in the project settings.

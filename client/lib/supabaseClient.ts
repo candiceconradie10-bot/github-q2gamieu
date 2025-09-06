@@ -1,19 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const url = import.meta.env.VITE_SUPABASE_URL;
+const anon = import.meta.env.VITE_SUPABASE_ANON_KEY;
+if (!url || !anon) throw new Error('VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY missing');
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  }
-});
+export const supabase = createClient(url, anon);
 
 // Database Types
 export interface Product {
@@ -37,8 +28,38 @@ export interface Profile {
   phone?: string;
   address?: any;
   is_admin: boolean;
+  role?: string; // Add role field for admin checks
   created_at: string;
   updated_at: string;
+}
+
+// New interfaces for wishlist and payment methods
+export interface WishlistItem {
+  id: string;
+  user_id: string;
+  product_id: string;
+  created_at: string;
+  product?: Product;
+}
+
+export interface PaymentMethod {
+  id: string;
+  user_id: string;
+  provider: string; // 'stripe', 'mock', etc.
+  provider_pm_id: string;
+  is_default: boolean;
+  metadata?: any;
+  created_at: string;
+}
+
+export interface AdminActivity {
+  id: string;
+  admin_id?: string;
+  action: string;
+  target_type?: string;
+  target_id?: string;
+  payload?: any;
+  created_at: string;
 }
 
 export interface CartItem {
@@ -326,5 +347,152 @@ export const orders = {
       .eq('id', orderId)
       .select()
       .single();
+  }
+};
+
+// Wishlist helper functions
+export const wishlist = {
+  async add(userId: string, productId: string) {
+    return await supabase
+      .from('wishlists')
+      .insert({ user_id: userId, product_id: productId })
+      .select()
+      .single();
+  },
+
+  async remove(userId: string, productId: string) {
+    return await supabase
+      .from('wishlists')
+      .delete()
+      .match({ user_id: userId, product_id: productId });
+  },
+
+  async getItems(userId: string): Promise<WishlistItem[]> {
+    const { data, error } = await supabase
+      .from('wishlists')
+      .select(`
+        *,
+        products(*)
+      `)
+      .eq('user_id', userId);
+
+    if (error) {
+      console.error('Error fetching wishlist items:', error);
+      return [];
+    }
+
+    return data || [];
+  },
+
+  async isInWishlist(userId: string, productId: string): Promise<boolean> {
+    const { data, error } = await supabase
+      .from('wishlists')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('product_id', productId)
+      .single();
+
+    return !error && !!data;
+  }
+};
+
+// Payment Methods helper functions
+export const paymentMethods = {
+  async getAll(userId: string): Promise<PaymentMethod[]> {
+    const { data, error } = await supabase
+      .from('payment_methods')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching payment methods:', error);
+      return [];
+    }
+
+    return data || [];
+  },
+
+  async add(userId: string, method: Omit<PaymentMethod, 'id' | 'user_id' | 'created_at'>) {
+    return await supabase
+      .from('payment_methods')
+      .insert([{ user_id: userId, ...method }])
+      .select()
+      .single();
+  },
+
+  async remove(methodId: string) {
+    return await supabase
+      .from('payment_methods')
+      .delete()
+      .eq('id', methodId);
+  },
+
+  async setDefault(userId: string, methodId: string) {
+    // First, unset all defaults for user
+    await supabase
+      .from('payment_methods')
+      .update({ is_default: false })
+      .eq('user_id', userId);
+
+    // Then set the selected one as default
+    return await supabase
+      .from('payment_methods')
+      .update({ is_default: true })
+      .eq('id', methodId)
+      .eq('user_id', userId);
+  }
+};
+
+// Admin Activity helper functions
+export const adminActivity = {
+  async log(adminId: string, action: string, targetType?: string, targetId?: string, payload?: any) {
+    return await supabase
+      .from('admin_activity')
+      .insert([{
+        admin_id: adminId,
+        action,
+        target_type: targetType,
+        target_id: targetId,
+        payload
+      }])
+      .select()
+      .single();
+  },
+
+  async getAll(limit: number = 100): Promise<AdminActivity[]> {
+    const { data, error } = await supabase
+      .from('admin_activity')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Error fetching admin activity:', error);
+      return [];
+    }
+
+    return data || [];
+  }
+};
+
+// Admin helper functions
+export const admin = {
+  async isAdmin(userId?: string): Promise<boolean> {
+    if (!userId) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+      userId = user.id;
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('is_admin, role')
+      .eq('id', userId)
+      .single();
+
+    if (error || !data) return false;
+    
+    return data.is_admin || data.role === 'admin';
   }
 };
