@@ -589,6 +589,8 @@ export function Header() {
         onClose={() => setAuthModalOpen(false)}
         defaultTab={authModalTab}
       />
+
+      <AdminPanel isOpen={!!profile && profile.role === "admin" && adminOpen} onClose={() => setAdminOpen(false)} />
     </>
   );
 }
