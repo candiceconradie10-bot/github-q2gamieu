@@ -268,29 +268,27 @@ export function Header() {
                 </>
               ) : (
                 <div className="flex items-center space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setAuthModalTab("signin");
-                      setAuthModalOpen(true);
-                    }}
-                    className="text-white hover:bg-white/10 hover:text-brand-red transition-all duration-300 rounded-xl px-4 py-2 font-medium"
-                  >
-                    <LogIn className="h-4 w-4 mr-2" />
-                    Sign In
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      setAuthModalTab("signup");
-                      setAuthModalOpen(true);
-                    }}
-                    className="bg-gradient-to-r from-brand-red to-red-600 hover:from-red-600 hover:to-brand-red text-white font-bold px-4 py-2 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
-                  >
-                    <User className="h-4 w-4 mr-2" />
-                    Sign Up
-                  </Button>
+                  <Link to="/signin" className="inline-block">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => { setAuthModalTab("signin"); setAuthModalOpen(false); }}
+                      className="text-white hover:bg-white/10 hover:text-brand-red transition-all duration-300 rounded-xl px-4 py-2 font-medium"
+                    >
+                      <LogIn className="h-4 w-4 mr-2" />
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link to="/signup" className="inline-block">
+                    <Button
+                      size="sm"
+                      onClick={() => { setAuthModalTab("signup"); setAuthModalOpen(false); }}
+                      className="bg-gradient-to-r from-brand-red to-red-600 hover:from-red-600 hover:to-brand-red text-white font-bold px-4 py-2 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      Sign Up
+                    </Button>
+                  </Link>
                 </div>
               )}
             </div>
