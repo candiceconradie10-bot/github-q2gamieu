@@ -22,7 +22,7 @@ interface Stats {
   totalMedia: number;
 }
 
-export function AdminStats() {
+export function AdminStats({ onNavigate }: { onNavigate?: (tab: string) => void }) {
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0,
     totalProducts: 0,
