@@ -90,28 +90,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (error.code === 'PGRST116') {
           // Profile doesn't exist, create basic profile
           console.log('Profile not found, creating basic profile...');
-          const basicProfile = {
+          const basicProfile: Profile = {
             id: userId,
             email: user?.email || '',
-            first_name: '',
-            last_name: '',
+            full_name: '',
             phone: '',
-            company: '',
-            is_admin: user?.email === 'jantjieskurt7@gmail.com' // Make this user admin
+            address: null,
+            is_admin: user?.email === 'jantjieskurt7@gmail.com', // Make this user admin
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           };
           setProfile(basicProfile);
           return basicProfile;
         }
         // If there are policy errors, create a basic profile anyway
         console.error('Error fetching profile, using fallback:', error);
-        const fallbackProfile = {
+        const fallbackProfile: Profile = {
           id: userId,
           email: user?.email || '',
-          first_name: '',
-          last_name: '',
+          full_name: '',
           phone: '',
-          company: '',
-          is_admin: user?.email === 'jantjieskurt7@gmail.com' // Make this user admin
+          address: null,
+          is_admin: user?.email === 'jantjieskurt7@gmail.com', // Make this user admin
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         };
         setProfile(fallbackProfile);
         return fallbackProfile;
@@ -127,14 +129,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('Error fetching profile, using fallback:', error);
       // Create fallback profile for authenticated user
-      const fallbackProfile = {
+      const fallbackProfile: Profile = {
         id: userId,
         email: user?.email || '',
-        first_name: '',
-        last_name: '',
+        full_name: '',
         phone: '',
-        company: '',
-        is_admin: user?.email === 'jantjieskurt7@gmail.com' // Make this user admin
+        address: null,
+        is_admin: user?.email === 'jantjieskurt7@gmail.com', // Make this user admin
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
       setProfile(fallbackProfile);
       return fallbackProfile;

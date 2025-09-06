@@ -108,8 +108,8 @@ export function AuthModal({ isOpen, onClose, defaultTab = "signin" }: AuthModalP
 
     try {
       const { error } = await signUp(signUpData.email, signUpData.password, {
-        first_name: signUpData.firstName,
-        last_name: signUpData.lastName,
+        firstName: signUpData.firstName,
+        lastName: signUpData.lastName,
         phone: signUpData.phone,
         company: signUpData.company,
       });
@@ -139,8 +139,11 @@ export function AuthModal({ isOpen, onClose, defaultTab = "signin" }: AuthModalP
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-black/95 backdrop-blur-xl border border-white/20 text-white">
+    <Dialog open={isOpen} onOpenChange={onClose} modal={true}>
+      <DialogContent 
+        className="sm:max-w-md bg-black/95 backdrop-blur-xl border border-white/20 text-white"
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle className="text-center">
             <img
