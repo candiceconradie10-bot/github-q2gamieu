@@ -195,21 +195,21 @@ export function AdminStats({ onNavigate }: { onNavigate?: (tab: string) => void 
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Button
-              onClick={() => setActiveTab("products")}
+              onClick={() => onNavigate && onNavigate("products")}
               className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-emerald-600 hover:to-green-500 text-white font-bold py-4 rounded-xl"
             >
               <Package className="h-5 w-5 mr-2" />
               Add New Product
             </Button>
             <Button
-              onClick={() => setActiveTab("content")}
+              onClick={() => onNavigate && onNavigate("content")}
               className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-cyan-600 hover:to-blue-500 text-white font-bold py-4 rounded-xl"
             >
               <FileText className="h-5 w-5 mr-2" />
               Edit Content
             </Button>
             <Button
-              onClick={() => setActiveTab("media")}
+              onClick={() => onNavigate && onNavigate("media")}
               className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-pink-600 hover:to-purple-500 text-white font-bold py-4 rounded-xl"
             >
               <Image className="h-5 w-5 mr-2" />
