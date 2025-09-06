@@ -23,7 +23,11 @@ export default function SignIn() {
       toast({ title: "Signed in", description: "Welcome back!" });
       navigate("/");
     } catch (err: any) {
-      toast({ title: "Sign in failed", description: err.message || "Unable to sign in.", variant: "destructive" });
+      toast({
+        title: "Sign in failed",
+        description: err.message || "Unable to sign in.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -36,17 +40,40 @@ export default function SignIn() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-white/5 border-white/10 text-white" />
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="bg-white/5 border-white/10 text-white"
+            />
           </div>
           <div>
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="bg-white/5 border-white/10 text-white" />
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="bg-white/5 border-white/10 text-white"
+            />
           </div>
           <div className="flex items-center justify-between">
-            <Button type="submit" className="bg-gradient-to-r from-brand-red to-red-600" disabled={loading}>
+            <Button
+              type="submit"
+              className="bg-gradient-to-r from-brand-red to-red-600"
+              disabled={loading}
+            >
               {loading ? "Signing in..." : "Sign In"}
             </Button>
-            <Link to="/signup" className="text-sm text-white/70 hover:text-white">Create account</Link>
+            <Link
+              to="/signup"
+              className="text-sm text-white/70 hover:text-white"
+            >
+              Create account
+            </Link>
           </div>
         </form>
       </div>

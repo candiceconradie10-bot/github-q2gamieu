@@ -27,7 +27,9 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalTab, setAuthModalTab] = useState<"signin" | "signup">("signin");
+  const [authModalTab, setAuthModalTab] = useState<"signin" | "signup">(
+    "signin",
+  );
   const [adminOpen, setAdminOpen] = useState(false);
   const location = useLocation();
   const { state } = useCart();
@@ -246,7 +248,7 @@ export function Header() {
                   )}
                 </Button>
               </Link>
-              
+
               {/* Authentication Section */}
               {loading ? (
                 <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse" />
@@ -272,7 +274,10 @@ export function Header() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => { setAuthModalTab("signin"); setAuthModalOpen(false); }}
+                      onClick={() => {
+                        setAuthModalTab("signin");
+                        setAuthModalOpen(false);
+                      }}
                       className="text-white hover:bg-white/10 hover:text-brand-red transition-all duration-300 rounded-xl px-4 py-2 font-medium"
                     >
                       <LogIn className="h-4 w-4 mr-2" />
@@ -282,7 +287,10 @@ export function Header() {
                   <Link to="/signup" className="inline-block">
                     <Button
                       size="sm"
-                      onClick={() => { setAuthModalTab("signup"); setAuthModalOpen(false); }}
+                      onClick={() => {
+                        setAuthModalTab("signup");
+                        setAuthModalOpen(false);
+                      }}
                       className="bg-gradient-to-r from-brand-red to-red-600 hover:from-red-600 hover:to-brand-red text-white font-bold px-4 py-2 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
                     >
                       <User className="h-4 w-4 mr-2" />
@@ -580,7 +588,7 @@ export function Header() {
           </div>
         </div>
       )}
-      
+
       {/* Authentication Modal */}
       <AuthModal
         isOpen={authModalOpen}
@@ -588,7 +596,10 @@ export function Header() {
         defaultTab={authModalTab}
       />
 
-      <AdminPanel isOpen={!!profile && profile.role === "admin" && adminOpen} onClose={() => setAdminOpen(false)} />
+      <AdminPanel
+        isOpen={!!profile && profile.role === "admin" && adminOpen}
+        onClose={() => setAdminOpen(false)}
+      />
     </>
   );
 }

@@ -22,7 +22,11 @@ interface Stats {
   totalMedia: number;
 }
 
-export function AdminStats({ onNavigate }: { onNavigate?: (tab: string) => void }) {
+export function AdminStats({
+  onNavigate,
+}: {
+  onNavigate?: (tab: string) => void;
+}) {
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0,
     totalProducts: 0,
@@ -56,12 +60,17 @@ export function AdminStats({ onNavigate }: { onNavigate?: (tab: string) => void 
           .from("products")
           .select("*", { count: "exact", head: true })
           .eq("is_active", true),
-        supabase.from("site_content").select("*", { count: "exact", head: true }),
-        supabase.from("media_files").select("*", { count: "exact", head: true }),
+        supabase
+          .from("site_content")
+          .select("*", { count: "exact", head: true }),
+        supabase
+          .from("media_files")
+          .select("*", { count: "exact", head: true }),
         supabase.from("orders").select("total"),
       ]);
 
-      const totalRevenue = revenueData?.reduce((sum, order) => sum + (order.total || 0), 0) || 0;
+      const totalRevenue =
+        revenueData?.reduce((sum, order) => sum + (order.total || 0), 0) || 0;
 
       setStats({
         totalUsers: totalUsers || 0,

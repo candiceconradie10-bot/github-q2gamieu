@@ -62,38 +62,42 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         <div className="flex h-[calc(100%-88px)]">
           {/* Sidebar */}
           <div className="w-64 border-r border-white/20 bg-black/50 p-4">
-            <Tabs value={activeTab} onValueChange={setActiveTab} orientation="vertical">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              orientation="vertical"
+            >
               <TabsList className="grid w-full grid-rows-5 h-auto bg-white/10 p-1">
-                <TabsTrigger 
-                  value="dashboard" 
+                <TabsTrigger
+                  value="dashboard"
                   className="w-full justify-start data-[state=active]:bg-brand-red data-[state=active]:text-white"
                 >
                   <BarChart3 className="h-4 w-4 mr-2" />
                   Dashboard
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="content" 
+                <TabsTrigger
+                  value="content"
                   className="w-full justify-start data-[state=active]:bg-brand-red data-[state=active]:text-white"
                 >
                   <FileText className="h-4 w-4 mr-2" />
                   Content
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="products" 
+                <TabsTrigger
+                  value="products"
                   className="w-full justify-start data-[state=active]:bg-brand-red data-[state=active]:text-white"
                 >
                   <Package className="h-4 w-4 mr-2" />
                   Products
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="media" 
+                <TabsTrigger
+                  value="media"
                   className="w-full justify-start data-[state=active]:bg-brand-red data-[state=active]:text-white"
                 >
                   <Image className="h-4 w-4 mr-2" />
                   Media
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="settings" 
+                <TabsTrigger
+                  value="settings"
                   className="w-full justify-start data-[state=active]:bg-brand-red data-[state=active]:text-white"
                 >
                   <Settings className="h-4 w-4 mr-2" />
@@ -131,7 +135,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="text-white">
-                    <p>System settings and configuration options will be available here.</p>
+                    <p>
+                      System settings and configuration options will be
+                      available here.
+                    </p>
                   </CardContent>
                 </Card>
               </TabsContent>
