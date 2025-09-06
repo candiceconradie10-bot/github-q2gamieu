@@ -17,13 +17,14 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 
 // Database Types
 export interface Product {
-  id: string;
-  title: string;
-  description: string;
+  id: number;
+  name: string;
+  description?: string;
   price: number;
   image_url?: string;
-  stock: number;
   category: string;
+  rating: number;
+  reviews_count: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -125,7 +126,21 @@ export const products = {
     return data || [];
   },
 
-  async getById(id: string): Promise<Product | null> {
+  async getAllForAdmin(): Promise<Product[]> {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching all products for admin:', error);
+      return [];
+    }
+
+    return data || [];
+  },
+
+  async getById(id: number): Promise<Product | null> {
     const { data, error } = await supabase
       .from('products')
       .select('*')
@@ -160,12 +175,21 @@ export const products = {
   async create(product: Omit<Product, 'id' | 'created_at' | 'updated_at'>) {
     return await supabase
       .from('products')
-      .insert([product])
+      .insert([{
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        image_url: product.image_url,
+        category: product.category,
+        rating: product.rating || 0,
+        reviews_count: product.reviews_count || 0,
+        is_active: product.is_active
+      }])
       .select()
       .single();
   },
 
-  async update(id: string, updates: Partial<Product>) {
+  async update(id: number, updates: Partial<Product>) {
     return await supabase
       .from('products')
       .update(updates)
@@ -174,7 +198,7 @@ export const products = {
       .single();
   },
 
-  async delete(id: string) {
+  async delete(id: number) {
     return await supabase
       .from('products')
       .delete()
