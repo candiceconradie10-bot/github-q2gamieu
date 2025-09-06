@@ -151,7 +151,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "signin" }: AuthModalP
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "signin" | "signup")} className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-white/10 backdrop-blur-lg">
             <TabsTrigger 
               value="signin" 
