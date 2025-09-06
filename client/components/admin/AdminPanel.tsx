@@ -107,7 +107,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           <div className="flex-1 overflow-auto">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsContent value="dashboard" className="p-6 space-y-6">
-                <AdminStats />
+                <AdminStats onNavigate={setActiveTab} />
               </TabsContent>
 
               <TabsContent value="content" className="p-6">
