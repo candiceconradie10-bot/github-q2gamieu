@@ -466,6 +466,19 @@ export function Header() {
                           <User className="h-5 w-5" />
                           <span className="text-xs">Profile</span>
                         </Button>
+                        {profile?.role === "admin" && (
+                          <Button
+                            onClick={() => {
+                              setAdminOpen(true);
+                              setIsMobileMenuOpen(false);
+                            }}
+                            variant="ghost"
+                            className="col-span-2 text-white hover:bg-white/10 rounded-lg p-3 h-auto flex flex-col items-center space-y-1 touch-manipulation"
+                          >
+                            <Shield className="h-5 w-5" />
+                            <span className="text-xs">Admin</span>
+                          </Button>
+                        )}
                       </div>
                     </div>
                   ) : (
