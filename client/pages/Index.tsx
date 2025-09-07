@@ -5,6 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { SEO, generateFAQSchema } from "@/components/SEO";
+import { EditableText, EditableImage } from "@/components/EditableText";
+import { useEditing } from "@/contexts/EditingContext";
 import { categories } from "@/data/products";
 import { useProducts } from "@/hooks/useProducts";
 import { ProductGrid } from "@/components/ProductGrid";
@@ -45,6 +47,7 @@ export default function Index() {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get('search');
   const { products: allProducts, loading, error } = useProducts();
+  const { getContent } = useEditing();
   
   // Filter products based on search query
   const searchResults = useMemo(() => {
@@ -91,39 +94,39 @@ export default function Index() {
 
   const featuredCategories = categories.slice(0, 6);
 
-  // Marketing slideshow banners
+  // Marketing slideshow banners - using dynamic content
   const marketingSlides = [
     {
       id: 1,
-      title: "Gear Up, Stand Out",
-      subtitle: "Spring Fashion Collection",
-      description:
-        "Embrace the lively spirit of spring with our newest fashion collection, featuring vibrant colors and elegance",
-      backgroundImage:
-        "https://images.pexels.com/photos/33737019/pexels-photo-33737019.jpeg?auto=compress&cs=tinysrgb&w=1920",
-      cta: "Shop Collection",
+      title: getContent("hero_slide_1_title", "Gear Up, Stand Out"),
+      subtitle: getContent("hero_slide_1_subtitle", "Spring Fashion Collection"),
+      description: getContent("hero_slide_1_description", 
+        "Embrace the lively spirit of spring with our newest fashion collection, featuring vibrant colors and elegance"),
+      backgroundImage: getContent("hero_slide_1_bg",
+        "https://images.pexels.com/photos/33737019/pexels-photo-33737019.jpeg?auto=compress&cs=tinysrgb&w=1920"),
+      cta: getContent("hero_slide_1_cta", "Shop Collection"),
       link: "/corporate-gifts",
     },
     {
       id: 2,
-      title: "Professional Excellence",
-      subtitle: "APEX Collection",
-      description:
-        "Discover our premium range of professional workwear and corporate solutions designed for modern businesses",
-      backgroundImage:
-        "https://images.pexels.com/photos/8486911/pexels-photo-8486911.jpeg?auto=compress&cs=tinysrgb&w=1920",
-      cta: "Explore APEX",
+      title: getContent("hero_slide_2_title", "Professional Excellence"),
+      subtitle: getContent("hero_slide_2_subtitle", "APEX Collection"),
+      description: getContent("hero_slide_2_description",
+        "Discover our premium range of professional workwear and corporate solutions designed for modern businesses"),
+      backgroundImage: getContent("hero_slide_2_bg",
+        "https://images.pexels.com/photos/8486911/pexels-photo-8486911.jpeg?auto=compress&cs=tinysrgb&w=1920"),
+      cta: getContent("hero_slide_2_cta", "Explore APEX"),
       link: "/corporate-clothing",
     },
     {
       id: 3,
-      title: "W.O.S APEX",
-      subtitle: "Complete Solutions",
-      description:
-        "From workwear to safety equipment, discover our comprehensive range of professional products and services",
-      backgroundImage:
-        "https://images.pexels.com/photos/4194843/pexels-photo-4194843.jpeg?auto=compress&cs=tinysrgb&w=1920",
-      cta: "View All Products",
+      title: getContent("hero_slide_3_title", "W.O.S APEX"),
+      subtitle: getContent("hero_slide_3_subtitle", "Complete Solutions"),
+      description: getContent("hero_slide_3_description",
+        "From workwear to safety equipment, discover our comprehensive range of professional products and services"),
+      backgroundImage: getContent("hero_slide_3_bg",
+        "https://images.pexels.com/photos/4194843/pexels-photo-4194843.jpeg?auto=compress&cs=tinysrgb&w=1920"),
+      cta: getContent("hero_slide_3_cta", "View All Products"),
       link: "/custom-products",
     },
   ];
@@ -180,12 +183,11 @@ export default function Index() {
                     : "opacity-0 transform translate-x-full"
               }`}
             >
-              {/* Background Image */}
-              <div
+              {/* Background Image - Editable */}
+              <EditableImage
+                contentKey={`hero_slide_${slide.id}_bg`}
+                defaultValue={slide.backgroundImage}
                 className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-                style={{
-                  backgroundImage: `url(${slide.backgroundImage})`,
-                }}
               />
               <div className="absolute inset-0 bg-black/25" />
 
@@ -311,22 +313,32 @@ export default function Index() {
                   <Heart className="h-4 w-4 mr-2" />
                   About APEX
                 </Badge>
-                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight">
+                <EditableText
+                  contentKey="about_title"
+                  defaultValue="Welcome to W.O.S APEX"
+                  as="h2"
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight"
+                >
                   Welcome to
                   <span className="gradient-text"> W.O.S APEX</span>
-                </h2>
+                </EditableText>
               </div>
 
-              <p className="text-lg md:text-xl text-gray-300 leading-relaxed">
-                At W.O.S APEX we believe your clothing should work as hard as
-                you do, and look good doing it. W.O.S APEX is your one-stop
-                online destination for premium clothing, durable workwear and
-                curated gifting. Driven by W.O.S, W.O.S APEX stands at the
-                intersection of function and flare.
-              </p>
-              <p className="text-lg md:text-xl text-gray-300 leading-relaxed mt-4">
-                Welcome to W.O.S APEX
-              </p>
+              <EditableText
+                contentKey="about_description"
+                defaultValue="At W.O.S APEX we believe your clothing should work as hard as you do, and look good doing it. W.O.S APEX is your one-stop online destination for premium clothing, durable workwear and curated gifting. Driven by W.O.S, W.O.S APEX stands at the intersection of function and flare."
+                as="p"
+                className="text-lg md:text-xl text-gray-300 leading-relaxed"
+                multiline
+                maxLength={500}
+              />
+              <EditableText
+                contentKey="about_subtitle"
+                defaultValue="Welcome to W.O.S APEX"
+                as="p"
+                className="text-lg md:text-xl text-gray-300 leading-relaxed mt-4"
+                maxLength={100}
+              />
 
               <div className="grid sm:grid-cols-2 gap-6">
                 <div className="flex items-start gap-4 p-6 rounded-2xl bg-white/5 backdrop-blur-lg border border-white/10 mobile-glass">
@@ -467,12 +479,20 @@ export default function Index() {
                 <Sparkles className="h-4 w-4 mr-2" />
                 Featured Products
               </Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                Trending Now
-              </h2>
-              <p className="text-gray-300 max-w-2xl mx-auto">
-                Discover our most popular products chosen by customers like you
-              </p>
+              <EditableText
+                contentKey="featured_products_title"
+                defaultValue="Trending Now"
+                as="h2"
+                className="text-3xl sm:text-4xl font-bold text-white mb-4"
+                maxLength={50}
+              />
+              <EditableText
+                contentKey="featured_products_description"
+                defaultValue="Discover our most popular products chosen by customers like you"
+                as="p"
+                className="text-gray-300 max-w-2xl mx-auto"
+                maxLength={200}
+              />
             </div>
             
             <ProductGrid 

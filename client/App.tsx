@@ -7,9 +7,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Header } from "@/components/Header";
+import { EditModeToggle } from "@/components/EditModeToggle";
 import { Footer } from "@/components/Footer";
 import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { EditingProvider } from "@/contexts/EditingContext";
 import { PerformanceMonitor } from "@/components/PerformanceMonitor";
 import { initializeViewportOptimizations } from "@/utils/viewport";
 import { injectCriticalCSS } from "@/utils/criticalCSS";
@@ -58,7 +60,8 @@ if (typeof window !== "undefined") {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <CartProvider>
+      <EditingProvider>
+        <CartProvider>
         <PerformanceMonitor />
         <Toaster />
         <Sonner />
@@ -88,8 +91,10 @@ const App = () => (
             </main>
             <Footer />
           </div>
+          <EditModeToggle />
         </BrowserRouter>
-      </CartProvider>
+        </CartProvider>
+      </EditingProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
