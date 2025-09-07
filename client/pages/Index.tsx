@@ -530,17 +530,27 @@ export default function Index() {
               <BookOpen className="h-4 w-4 mr-2" />
               Our Catalogue
             </Badge>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight">
+            <EditableText
+              contentKey="catalogue_title"
+              defaultValue="Explore Our Premium Collections"
+              as="h2"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight"
+              multiline
+              maxLength={100}
+            >
               Explore Our
               <span className="gradient-text"> Premium</span>
               <br />
               Collections
-            </h2>
-            <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              Discover thousands of premium promotional products, corporate
-              gifts, and custom branding solutions designed to elevate your
-              business presence.
-            </p>
+            </EditableText>
+            <EditableText
+              contentKey="catalogue_description"
+              defaultValue="Discover thousands of premium promotional products, corporate gifts, and custom branding solutions designed to elevate your business presence."
+              as="p"
+              className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed"
+              multiline
+              maxLength={300}
+            />
           </div>
 
           {/* Categories Grid */}
