@@ -75,8 +75,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     );
 
-    return () => subscription.unsubscribe();
-  }, []);
+    // Auto sign-out when tab/window is closed
+    const handleBeforeUnload = async () => {
+      if (user) {
+        // Use navigator.sendBeacon for reliable logout on page unload
+        try {
+          await supabase.auth.signOut();
+        } catch (error) {
+          console.error('Error signing out on page unload:', error);
+        }
+      }
+    };
+
+    // Add event listener for tab close
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [user]);
 
   const fetchProfile = async (userId: string) => {
     try {
