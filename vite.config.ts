@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => ({
     host: "0.0.0.0",
     port: 5000,
     strictPort: false,
+    allowedHosts: ["7add99d0-b100-4466-b589-354c2e036315-00-35xzpgas8vjo.spock.replit.dev"],
     headers: {
       'Cache-Control': 'no-cache, no-store, must-revalidate',
       'Pragma': 'no-cache',
