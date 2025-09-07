@@ -8,12 +8,13 @@ export const supabase = createClient(url, anon);
 
 // Database Types
 export interface Product {
-  id: number;
+  id: string; // UUID type
   name: string;
   description?: string;
   price: number;
   image_url?: string;
   category: string;
+  stock: number; // Added stock field
   rating: number;
   reviews_count: number;
   is_active: boolean;
@@ -161,7 +162,7 @@ export const products = {
     return data || [];
   },
 
-  async getById(id: number): Promise<Product | null> {
+  async getById(id: string): Promise<Product | null> {
     const { data, error } = await supabase
       .from('products')
       .select('*')
@@ -202,6 +203,7 @@ export const products = {
         price: product.price,
         image_url: product.image_url,
         category: product.category,
+        stock: product.stock || 0,
         rating: product.rating || 0,
         reviews_count: product.reviews_count || 0,
         is_active: product.is_active
@@ -210,7 +212,7 @@ export const products = {
       .single();
   },
 
-  async update(id: number, updates: Partial<Product>) {
+  async update(id: string, updates: Partial<Product>) {
     return await supabase
       .from('products')
       .update(updates)
@@ -219,7 +221,7 @@ export const products = {
       .single();
   },
 
-  async delete(id: number) {
+  async delete(id: string) {
     return await supabase
       .from('products')
       .delete()
