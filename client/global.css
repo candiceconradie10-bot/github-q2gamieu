@@ -927,3 +927,186 @@
 .animate-mobileGlow {
   animation: mobileGlow 2s ease-in-out infinite;
 }
+
+/* Magnificent enhancements for a spectacular website */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes glow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(220, 20, 60, 0.3),
+                0 0 40px rgba(220, 20, 60, 0.1),
+                inset 0 0 20px rgba(255, 255, 255, 0.1);
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(220, 20, 60, 0.5),
+                0 0 60px rgba(220, 20, 60, 0.2),
+                inset 0 0 30px rgba(255, 255, 255, 0.2);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 5px rgba(220, 20, 60, 0.2);
+  }
+  50% { 
+    box-shadow: 0 0 20px rgba(220, 20, 60, 0.5),
+                0 0 40px rgba(220, 20, 60, 0.3);
+  }
+}
+
+@keyframes rainbow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes sparkle {
+  0%, 20%, 100% {
+    opacity: 0;
+    transform: rotate(0deg) scale(0);
+  }
+  40% {
+    opacity: 1;
+    transform: rotate(45deg) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: rotate(90deg) scale(1);
+  }
+}
+
+/* Enhanced gradient effects */
+.magnificent-gradient {
+  background: linear-gradient(
+    45deg,
+    #dc143c 0%,
+    #ff1744 25%,
+    #dc143c 50%,
+    #b71c1c 75%,
+    #dc143c 100%
+  );
+  background-size: 400% 400%;
+  animation: rainbow 3s ease infinite;
+}
+
+.shimmer-effect {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.glow-effect {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+.pulse-glow-effect {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Magnificent text effects */
+.magnificent-text {
+  background: linear-gradient(
+    135deg,
+    #fff 0%,
+    #dc143c 25%,
+    #fff 50%,
+    #ff6b9d 75%,
+    #fff 100%
+  );
+  background-size: 300% 300%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbow 4s ease infinite;
+  text-shadow: 0 0 30px rgba(220, 20, 60, 0.5);
+}
+
+/* Enhanced glass morphism */
+.magnificent-glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 30px rgba(220, 20, 60, 0.1);
+}
+
+.magnificent-glass:hover {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 0 40px rgba(220, 20, 60, 0.2);
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+/* Enhanced button effects */
+.magnificent-button {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(45deg, #dc143c, #ff1744, #dc143c);
+  background-size: 200% 200%;
+  animation: rainbow 3s ease infinite;
+  box-shadow: 
+    0 4px 15px rgba(220, 20, 60, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.magnificent-button:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 
+    0 8px 25px rgba(220, 20, 60, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.magnificent-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.magnificent-button:hover::before {
+  left: 100%;
+}
+
+/* Enhanced hero section */
+.magnificent-hero {
+  position: relative;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(220, 20, 60, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 23, 68, 0.15) 0%, transparent 50%),
+    linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(20, 20, 40, 0.9) 100%);
+}
+
+.magnificent-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  animation: float 6s ease-in-out infinite;
+  pointer-events: none;
+}

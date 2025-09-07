@@ -169,7 +169,7 @@ export default function Index() {
       />
 
       {/* Marketing Slideshow Hero Section */}
-      <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-[90vh] overflow-hidden">
+      <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-[90vh] overflow-hidden magnificent-hero">
         {/* Slideshow Container */}
         <div className="relative w-full h-full">
           {marketingSlides.map((slide, index) => (
@@ -208,7 +208,7 @@ export default function Index() {
                         <Button
                           variant="outline"
                           size="lg"
-                          className="w-full min-h-[56px] bg-transparent border-2 border-white/40 text-white hover:bg-white/10 hover:border-white/60 font-bold px-6 py-4 sm:px-8 rounded-xl backdrop-blur-lg transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-base sm:text-lg active:bg-white/20"
+                          className="w-full min-h-[56px] magnificent-glass glow-effect font-bold px-6 py-4 sm:px-8 rounded-xl transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-base sm:text-lg"
                         >
                           <Play className="mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6" />
                           <span className="text-sm sm:text-base font-bold">
@@ -219,7 +219,7 @@ export default function Index() {
                       <a href="#catalogue-section" className="w-full sm:w-auto">
                         <Button
                           size="lg"
-                          className="w-full min-h-[56px] bg-white/20 backdrop-blur-lg border border-white/30 text-white hover:bg-white/30 hover:border-white/50 font-bold px-6 py-4 sm:px-8 rounded-xl shadow-xl mobile-shadow transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-base sm:text-lg active:bg-white/40"
+                          className="w-full min-h-[56px] magnificent-button pulse-glow-effect font-bold px-6 py-4 sm:px-8 rounded-xl transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-base sm:text-lg"
                         >
                           <ShoppingBag className="mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6" />
                           <span className="text-sm sm:text-base font-bold">
